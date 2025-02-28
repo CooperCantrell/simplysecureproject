@@ -23,17 +23,18 @@
  * PUBLIC #DEFINES                                                             *
  ******************************************************************************/
 #define EMPTY_ITEM (TODOItem) {0,NO_EVENT} 
-
+#define TODO_SIZE 64
 /*******************************************************************************
  * PUBLIC TYPEDEFS                                                             *
  ******************************************************************************/
-#define TODO_SIZE 64
+
 typedef struct
 {
     Event (*Func)(Event);
     Event Input;
 }TODOItem;
 typedef struct TODOListobj* TODOList;
+bool (*StateMachineINIT[])(uint16_t) = {};
 /*******************************************************************************
  * PUBLIC FUNCTION PROTOTYPES                                                  *
  ******************************************************************************/
