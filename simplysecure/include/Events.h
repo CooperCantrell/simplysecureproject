@@ -27,6 +27,8 @@ typedef enum {
     UI_DEVICESETTINGS,
     UI_MANUALSCAN,
     INTERNAL_SCHEDULETIMERINTERRUPT,
+    CAP_ON,
+    CAP_OFF,
 } EventLabel;
 static const char *EventNames[] = {
     "NONE",
@@ -38,6 +40,8 @@ static const char *EventNames[] = {
     "UI_DEVICESETTINGS",
     "UI_MANUALSCAN",
     "INTERNAL_SCHEDULETIMERINTERRUPT",
+    "CAP_ON",
+    "CAP_OFF",
 };
 
  typedef struct 
