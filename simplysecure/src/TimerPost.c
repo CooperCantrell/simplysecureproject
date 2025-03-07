@@ -106,6 +106,7 @@ void runtimer(void){
             head++;
             head = head%TIMERPOSTSIZE;
             full = false;
+            endItems[count](endParams[count]);
         }
         
         

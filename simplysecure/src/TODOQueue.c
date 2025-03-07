@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <config.h>
+#include <TimerPost.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -251,6 +252,7 @@ void RunQueue(void){
         if(Execute(MasterQueue).Label == SERROR){
             break;
         }
+        runtimer();
     }
     
 }
