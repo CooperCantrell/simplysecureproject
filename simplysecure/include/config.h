@@ -13,3 +13,7 @@
 // state machine config
 #include <SimplyFSM.h>
 #define SM_INIT {InitTemplateFSM}
+
+// timers config
+// keep this small my code is slow
+#define TIMERPOSTSIZE 4
