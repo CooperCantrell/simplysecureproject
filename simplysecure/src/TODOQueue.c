@@ -13,6 +13,7 @@
 #include "TODOQueue.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <config.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -38,6 +39,7 @@ typedef struct TODOListobj {
  * PRIVATE VARIABLES                                                           *
  ******************************************************************************/
 TODOList MasterQueue;
+bool (*StateMachineINIT[])(uint16_t) = SM_INIT;
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -245,7 +247,8 @@ void RunQueue(void){
     // Run forever completing the items in the queue
     while (true)
     {
-        if(Execute(MasterQueue).Label == ERROR){
+        
+        if(Execute(MasterQueue).Label == SERROR){
             break;
         }
     }

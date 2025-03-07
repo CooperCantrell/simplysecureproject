@@ -19,7 +19,7 @@
 // Event enums
 typedef enum {
     NONE,
-    ERROR,
+    SERROR,
     INIT,
     ENTRY,
     EXIT,
@@ -32,7 +32,7 @@ typedef enum {
 } EventLabel;
 static const char *EventNames[] = {
     "NONE",
-    "ERROR",
+    "SERROR",
     "INIT",
     "ENTRY",
     "EXIT",

@@ -13,7 +13,9 @@
  ******************************************************************************/
 #include "SimplyFSM.h"
 #include "TODOQueue.h"
-#include "timers.c"
+#include "timers.h"
+#include <stdbool.h>
+#include <math.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -64,10 +66,10 @@ static SimplyFSMState_t CurrentState = Init;
 uint32_t recordTime(bool initFlag){
     static uint32_t startTime = 0;
     if(initFlag){
-        startTime = TIMERS_GetMicroSeconds;
+        startTime = TIMERS_GetMicroSeconds();
         return 0;
     } else {
-        uint32_t curTime = TIMERS_GetMilliSeconds;
+        uint32_t curTime = TIMERS_GetMilliSeconds();
         uint32_t deltaTime = curTime - startTime;
         startTime = curTime;
         return deltaTime;
@@ -131,7 +133,7 @@ uint32_t recordTime(bool initFlag){
     case Init:
         /* code */
         if(InputEvent.Label == CAP_ON){
-            recordTime(TRUE);
+            recordTime(true);
             Transition = true;
             InputEvent = NO_EVENT;
             nextstate = MeasureON;

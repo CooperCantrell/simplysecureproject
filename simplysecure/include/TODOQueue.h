@@ -19,6 +19,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <Events.h>
+#include <config.h>
 /*******************************************************************************
  * PUBLIC #DEFINES                                                             *
  ******************************************************************************/
@@ -34,7 +35,7 @@ typedef struct
     Event Input;
 }TODOItem;
 typedef struct TODOListobj* TODOList;
-bool (*StateMachineINIT[])(uint16_t) = {};
+
 /*******************************************************************************
  * PUBLIC FUNCTION PROTOTYPES                                                  *
  ******************************************************************************/
