@@ -268,6 +268,11 @@ int8_t BNO055_Init(void)
     unsigned char byteReturn;
     // Delaying to ensure that successive programs do not glitch the sensor.
     DelayMicros(1000000); 
+    
+    // Reset the device to allow for device reflashing without communication
+    // breakdowns (they're always the same )':).
+    I2C_WriteReg(BNO055_ADDRESS_A, BNO055_SYS_TRIGGER_ADDR, 0x20);
+    DelayMicros(1000000); 
 
     // Read chip ID to verify sensor connection.
     byteReturn = I2C_ReadRegister(BNO055_ADDRESS_A, BNO055_CHIP_ID_ADDR);
