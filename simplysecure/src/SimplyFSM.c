@@ -23,6 +23,7 @@
 #define DEFAULTTEMPO 1000//default pause and tap is one second long
 #define MAXCODELENGTH 50//maximun number of taps and waits combined in a code
 #define LENIENCY 100// how many milliseconds the user is allowed to be off from the correct time
+#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -124,6 +125,9 @@ uint32_t recordTime(bool initFlag){
   * @author Cooper Cantrell 2/8/2025
   */
  Event RunTemplateFSM(Event InputEvent){
+    #ifdef TATTLE
+    printf("%s called, Input = %s:  STATE = %s \n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState]);
+    #endif
     bool Transition = false;
     SimplyFSMState_t nextstate;
     //count is used to run the start cycle and index through the passcode
@@ -261,6 +265,9 @@ uint32_t recordTime(bool initFlag){
     }
     if(Transition){
         RunTemplateFSM(EXIT_EVENT);
+        #ifdef TATTLE
+        printf("Transition: %s -> %s \n", StateNames[CurrentState], StateNames[nextstate]);
+        #endif
         CurrentState = nextstate;
         RunTemplateFSM(ENTRY_EVENT);
     }
