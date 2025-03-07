@@ -51,7 +51,7 @@
  * @return TRUE or FALSE
  * @brief This function is a wrapper to posting to the master queue
  * @author Cooper Cantrell 2/8/2025 */
-bool PostTemplateFSM(Event InputEvent, unint16_t Priority);
+bool PostTemplateFSM(Event InputEvent, uint16_t Priority);
 
 /**
  * @Function RunTemplateFSM(Event ThisEvent)

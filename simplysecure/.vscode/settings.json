@@ -1,6 +1,11 @@
 {
     "files.associations": {
+        "*.md": "markdown",
         "*.c": "c",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "board.h": "c",
+        "stdint.h": "c",
+        "todoqueue.h": "c",
+        "stdbool.h": "c"
     }
 }

@@ -17,6 +17,7 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 //#define CAP_TEST
+#define CAPTOUCH_PIN GPIO_PIN_5
 /*******************************************************************************
  * PRIVATE VARIABLES                                                           *
  ******************************************************************************/
@@ -29,16 +30,16 @@ volatile uint32_t CurrentTime;
  // external interrupt ISR for rising edge of pin PB5  
  void EXTI9_5_IRQHandler(void) {
      // EXTI line interrupt detected 
-     if(__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_5) != RESET) {
+     if(__HAL_GPIO_EXTI_GET_IT(CAPTOUCH_PIN) != RESET) {
          // Clear interrupt flag.
-         __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_5);
-         // Anything that needs to happen on rising edge of PB5
+         __HAL_GPIO_EXTI_CLEAR_IT(CAPTOUCH_PIN);
+         // Anything that needs to happen on rising edge of CAPTOUCH_PIN
          // (ENC_B).
          // reads the current time in us and compares it to the last riseing edge time 
          // to calculate the period, Filters the result to reduce noise first with a 
          // 255 point moving avg filter first
          CurrentTime = TIMERS_GetMicroSeconds();
-         Period = MovingAvgFIT((int) CurrentTime-LastTime);
+         Period = CurrentTime-LastTime;
          LastTime = CurrentTime;
 
      }
