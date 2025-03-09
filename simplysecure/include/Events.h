@@ -59,5 +59,6 @@ static const char *EventNames[] = {
 #define INIT_EVENT (Event){INIT,NULL}
 #define ENTRY_EVENT (Event){ENTRY,NULL}
 #define EXIT_EVENT (Event) {EXIT,NULL}
-
+#define PRESSED (Event) {CAP_ON,NULL}
+#define UNPRESSED (Event) {CAP_OFF,NULL}
 #endif

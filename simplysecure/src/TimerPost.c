@@ -99,7 +99,7 @@ bool TimerPosting(uint32_t Time, Event(*PostItem)(Event), uint16_t ID){
 void runtimer(void){
     uint16_t count = head;
     uint32_t currenttime = TIMERS_GetMilliSeconds();
-    while (count != tail);
+    while (count != tail)
     {
         if(endtimes[count] <= currenttime){
             

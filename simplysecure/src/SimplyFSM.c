@@ -16,6 +16,7 @@
 #include "timers.h"
 #include <stdbool.h>
 #include <math.h>
+#include <leds.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -23,7 +24,7 @@
 #define DEFAULTTEMPO 1000//default pause and tap is one second long
 #define MAXCODELENGTH 50//maximun number of taps and waits combined in a code
 #define LENIENCY 100// how many milliseconds the user is allowed to be off from the correct time
-#define TATTLE
+//#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -128,6 +129,14 @@ uint32_t recordTime(bool initFlag){
     #ifdef TATTLE
     printf("%s called, Input = %s:  STATE = %s \n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState]);
     #endif
+    if (InputEvent.Label == CAP_ON)
+    {
+        set_leds(1);
+    }
+    if (InputEvent.Label == CAP_OFF)
+    {
+        set_leds(0);
+    }
     bool Transition = false;
     SimplyFSMState_t nextstate;
     //count is used to run the start cycle and index through the passcode

@@ -6,6 +6,10 @@
         "board.h": "c",
         "stdint.h": "c",
         "todoqueue.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "events.h": "c",
+        "simplyfsm.h": "c",
+        "leds.h": "c",
+        "math.h": "c"
     }
 }
