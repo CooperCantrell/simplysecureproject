@@ -21,4 +21,7 @@
 //captouch config 
 #define CAPTOUCH_PIN GPIO_PIN_5
 #define CAPTOUCH_Priority 2
+//PING config
+#define PING_PIN GPIO_PIN_6
+#define PING_Priority 2
 
