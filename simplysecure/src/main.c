@@ -17,8 +17,10 @@
 #include <timers.h>
 #include <CAPTOUCH.h>
 #include <TODOQueue.h>
+#include <SimplyFSM.h>
 #include <leds.h>
-#include <PING.h>
+//#include <PING.h>
+#include <TimerPost.h>
 int main(void)
 {
     
@@ -26,8 +28,9 @@ int main(void)
     BOARD_Init();
     TIMER_Init();
     CAPTOUCH_Init();
-    PING_Init();
+  //  PING_Init();
     LEDS_Init();
+    TimerPostInit();
     printf("Lock Firmware for the lock is running\r\n");
     // Running as normal -----------------------------------------------------------
     RunQueue();

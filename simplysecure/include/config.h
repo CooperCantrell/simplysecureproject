@@ -17,7 +17,8 @@
 // timers config
 // keep this small my code is slow
 #define TIMERPOSTSIZE 4
-
+// sensors config MUST USE GPIO 5-9-----------
 //captouch config 
 #define CAPTOUCH_PIN GPIO_PIN_5
 #define CAPTOUCH_Priority 2
+

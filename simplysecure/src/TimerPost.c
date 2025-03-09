@@ -99,6 +99,8 @@ bool TimerPosting(uint32_t Time, Event(*PostItem)(Event), uint16_t ID){
 void runtimer(void){
     uint16_t count = head;
     uint32_t currenttime = TIMERS_GetMilliSeconds();
+    if (!full)
+    {
     while (count != tail)
     {
         if(endtimes[count] <= currenttime){
@@ -113,5 +115,21 @@ void runtimer(void){
         count++;
         count = count%TIMERPOSTSIZE;
     }
-    
+    }
+    else
+    {
+        for (uint16_t i = 0; i < TIMERPOSTSIZE; i++)
+        {
+        if(endtimes[i] <= currenttime){
+            
+            head++;
+            head = head%TIMERPOSTSIZE;
+            full = false;
+            endItems[i](endParams[i]);
+        }
+        }
+        
+    }
+
+
 }
