@@ -13,11 +13,14 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 //#define FILTERS_TEST
+#define HISTNUM 256
+#define FILTERNUM 4
+#define FILTERSIZE 8
 /*******************************************************************************
  * PRIVATE VARIABLES                                                           *
  ******************************************************************************/
-bool HStatus[256] = {false};
-int DataArray[32][265];
+bool HStatus[HISTNUM] = {false};
+int DataArray[FILTERNUM][FILTERSIZE];
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -34,19 +37,19 @@ int DataArray[32][265];
  * @Function MovingAvgFIT(int Data, unsigned char ID)
  * @param Input - discription of input 
  * @return an int that is the result of the moving average filter at the ID
- * @brief is an FIT filter that takes the last 256 inputs and averages them out for smoothness
+ * @brief is an FIT filter that takes the last FILTERSIZE inputs and averages them out for smoothness
  * @author Cooper Cantrell, 1/13/2025 
 */
 int MovingAvgFIT(int Data, unsigned char ID){
     static short Index = 0;
     int sum = 0;
-    ID = ID%32;
+    ID = ID%FILTERNUM;
     DataArray[ID][Index] = Data;
-    Index = (Index + 1) % 256;
-    for(short i = 0; i < 256; i++){
+    Index = (Index + 1) % FILTERSIZE;
+    for(short i = 0; i < FILTERSIZE; i++){
         sum += DataArray[ID][i];
     }
-    return sum/256;
+    return sum/FILTERSIZE;
 }
 
 /*
