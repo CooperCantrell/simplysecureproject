@@ -80,7 +80,7 @@ bool TimerPosting(uint32_t Time, Event(*PostItem)(Event), uint16_t ID){
         tail++;
         tail = tail%TIMERPOSTSIZE;
         full = (tail == head);
-        
+        return true;
     }
     else
     {

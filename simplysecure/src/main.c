@@ -15,8 +15,8 @@
 #include <stdio.h>
 #include <Board.h>
 #include <timers.h>
-#include <CAPTOUCH.h>
 #include <TODOQueue.h>
+#include <Sensors.h>
 #include <SimplyFSM.h>
 #include <leds.h>
 //#include <PING.h>
@@ -27,8 +27,7 @@ int main(void)
     // Your hardware  function calls go here ---------------------------------------
     BOARD_Init();
     TIMER_Init();
-    CAPTOUCH_Init();
-  //  PING_Init();
+    SensorInit();
     LEDS_Init();
     TimerPostInit();
     printf("Lock Firmware for the lock is running\r\n");

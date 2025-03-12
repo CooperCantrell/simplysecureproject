@@ -31,12 +31,12 @@
 /**
  * @Function SensorInit(void)
  * @param none
- * @return none
+ * @return ERROR or SUCCESSES
  * @brief inits all of the sensors together so the ISR works better
  * @author Cooper Cantrell, DATE 
  * @edited EDITORNAME, DATE - only if applies
 */
-void SensorInit(void);
+char SensorInit(void);
 
 
 #endif 

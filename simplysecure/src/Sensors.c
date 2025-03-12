@@ -15,6 +15,10 @@
 #include <config.h>
 #include <stdbool.h>
 #include <timers.h>
+#include <pwm.h>
+#include <Board.h>
+#include <Filters.h>
+#include <stdio.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -62,7 +66,7 @@ void TIM3_IRQHandler(void)
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
             // set timer to 10us
             // timer ticks 1 per us
-            TIM3->ARR = 10;
+            TIM3->ARR = 100;
             break;
 
         case Trigger:
@@ -70,7 +74,7 @@ void TIM3_IRQHandler(void)
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
             // set timer to 60ms
             // timer ticks 1 per us
-            TIM3->ARR = 60000;
+            TIM3->ARR = 64000;
             break;
         default:
             break;
@@ -81,12 +85,12 @@ void TIM3_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
     // EXTI line interrupt detected
-    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_5) != RESET)
+    if (__HAL_GPIO_EXTI_GET_IT(PING_TRIG) != RESET)
     {
-        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_5); // clear interrupt flag
+        __HAL_GPIO_EXTI_CLEAR_IT(PING_TRIG); // clear interrupt flag
 
         // anything that needs to happen when PB5 (ENC_B) changes state
-        if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_5)){ // trigger on rise edge
+        if(HAL_GPIO_ReadPin(GPIOB,PING_TRIG)){ // trigger on rise edge
             REdgeRead = TIMERS_GetMicroSeconds();
         }
         else{ // fall edge
@@ -94,6 +98,32 @@ void EXTI9_5_IRQHandler(void)
             TimeOfFlight = FEdgeRead-REdgeRead;
         }
     }
+         // Clear interrupt flag.
+         __HAL_GPIO_EXTI_CLEAR_IT(CAPTOUCH_PIN);
+         // Anything that needs to happen on rising edge of PB5
+         // (ENC_B).
+         // reads the current time in us and compares it to the last riseing edge time 
+         // to calculate the period, Filters the result to reduce noise first with a 
+         // 255 point moving avg filter first
+         CurrentTime = TIMERS_GetMicroSeconds();
+         Period = MovingAvgFIT(CurrentTime-LastTime,1);
+         LastTime = CurrentTime;
+        currentstate = HystFilter256(Period,90,5,0);
+        if (currentstate != laststate)
+        {
+            if (currentstate)
+            {
+                PostTemplateFSM(PRESSED,CAPTOUCH_Priority);
+            }
+            else
+            {
+                PostTemplateFSM(UNPRESSED,CAPTOUCH_Priority);
+            }
+            laststate = currentstate;
+        }
+        
+
+     
 }
 /*******************************************************************************
  * PUBLIC FUNCTIONS FUNCTIONS                                                  *
@@ -107,7 +137,7 @@ void EXTI9_5_IRQHandler(void)
  * @author Cooper Cantrell, DATE 
  * @edited EDITORNAME, DATE - only if applies
 */
-void SensorInit(void){
+char SensorInit(void){
     /**
      * INIT captouch sensor
      */
@@ -117,7 +147,7 @@ void SensorInit(void){
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     // EXTI interrupt init
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1,1);
     HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
     // the rest of the function goes here
     TIMER_Init();
@@ -127,7 +157,7 @@ void SensorInit(void){
     TIMER_Init();
 
     // this block initializes the GPIO output pin (PB8, PWM_5 on shield)
-    GPIO_InitStruct.Pin = GPIO_PIN_8;
+    GPIO_InitStruct.Pin = PING_TRIG;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -160,7 +190,7 @@ void SensorInit(void){
     HAL_TIM_Base_Start_IT(&htim3); // start interrupt
 
     // this block inits the external pin-generted interrupt on any change of pin PB5 (ENC_B)
-    GPIO_InitStruct.Pin = GPIO_PIN_5;
+    GPIO_InitStruct.Pin = PING_ECHO;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -171,4 +201,5 @@ void SensorInit(void){
     TimeOfFlight = 0;
     REdgeRead = 0;
     FEdgeRead = 0;
+    return SUCCESS;
 }
