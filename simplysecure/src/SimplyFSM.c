@@ -14,6 +14,7 @@
 #include "SimplyFSM.h"
 #include "TODOQueue.h"
 #include "timers.h"
+#include "TimerPost.h"
 #include <stdbool.h>
 #include <math.h>
 #include <leds.h>
@@ -24,6 +25,8 @@
 #define DEFAULTTEMPO 1000//default pause and tap is one second long
 #define MAXCODELENGTH 50//maximun number of taps and waits combined in a code
 #define LENIENCY 100// how many milliseconds the user is allowed to be off from the correct time
+#define SIMPLYTIMERID 1//The ID used for the Timer posting
+#define UNLOCKEVENT_PRIORITY 3
 //#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
@@ -74,7 +77,7 @@ uint32_t recordTime(bool initFlag){
         startTime = TIMERS_GetMicroSeconds();
         return 0;
     } else {
-        uint32_t curTime = TIMERS_GetMilliSeconds();
+        uint32_t curTime = TIMERS_GetMicroSeconds();
         uint32_t deltaTime = curTime - startTime;
         startTime = curTime;
         return deltaTime;
@@ -132,14 +135,14 @@ uint32_t recordTime(bool initFlag){
     #ifdef TATTLE
     printf("%s called, Input = %s:  STATE = %s \n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState]);
     #endif
-    if (InputEvent.Label == CAP_ON)
-    {
-        set_leds(1);
-    }
-    if (InputEvent.Label == CAP_OFF)
-    {
-        set_leds(0);
-    }
+    // if (InputEvent.Label == CAP_ON)
+    // {
+    //     set_leds(1);
+    // }
+    // if (InputEvent.Label == CAP_OFF)
+    // {
+    //     set_leds(0);
+    // }
     bool Transition = false;
     SimplyFSMState_t nextstate;
     //count is used to run the start cycle and index through the passcode
@@ -160,6 +163,7 @@ uint32_t recordTime(bool initFlag){
         if(InputEvent.Label == INIT){
             TIMER_Init();//should be done earlier, however, initializing the timers twice wont hurt as it has protections
             count = 0;
+            passwordSetMode = true;//When device first boots up, set the password
         }
         break;
     
@@ -211,7 +215,7 @@ uint32_t recordTime(bool initFlag){
             }
             if(passwordSetMode){
                 PassCode[count][0] = time;
-                //PassCode[count][1] = //Heres where I would put the frequency IF I HAD IT
+                //PassCode[count][1] = //Heres where I would read the frequency IF I HAD IT
                 Transition = true;
                 InputEvent = NO_EVENT;
                 nextstate = OFF;
@@ -237,6 +241,18 @@ uint32_t recordTime(bool initFlag){
         }
         break;
     case OFF:
+        if(InputEvent.Label == ENTRY){//creates a 3 second timeout timer
+            if(passwordSetMode){
+                TimerPosting(3000, RunSimplyFSM, SIMPLYTIMERID);
+            }
+        }
+        if(InputEvent.Label == TIMEOUT && InputEvent.Data == SIMPLYTIMERID){//implements the stop of the new passcode
+            PassCode[count][0] = 0;
+            PassCode[count][1] = 0;
+            Transition = true;
+            InputEvent = NO_EVENT;
+            nextstate = Unlock;
+        }
         if(InputEvent.Label == CAP_ON){
             uint32_t time = OnTempo * recordTime(false);
             if(count >= MAXCODELENGTH){//shouldn't happen in check mode, but prevents crashing in set password mode
@@ -272,7 +288,8 @@ uint32_t recordTime(bool initFlag){
         break;
     case Unlock:
         if(InputEvent.Label == ENTRY){
-            //Heres where I would post to the UnlockSM IF I HAD ONE
+            Event UnlockEvent = {UNLOCK, 0};
+            PostUnlockFSM(UnlockEvent, UNLOCKEVENT_PRIORITY);
             
             Transition = true;
             InputEvent = NO_EVENT;
@@ -288,9 +305,7 @@ uint32_t recordTime(bool initFlag){
                 offTime[i] = 0;
                 onTime[i] = 0;
             }
-            if(passwordSetMode){
-                passwordSetMode = false;
-            }
+            passwordSetMode = false;
             Transition = true;
             InputEvent = NO_EVENT;
             nextstate = Init;
