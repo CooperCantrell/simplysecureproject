@@ -26,3 +26,6 @@
 #define PING_ECHO GPIO_PIN_6
 #define PING_TRIG GPIO_PIN_8
 #define PING_Priority 2
+// distance is in inches 
+#define PING_CLOSE_THRESH 12
+#define PING_CLOSE_TOL 5

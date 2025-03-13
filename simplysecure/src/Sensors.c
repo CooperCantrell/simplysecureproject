@@ -22,6 +22,8 @@
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
+#define X_COEF 0.006735130021308
+#define BIAS 0.239378770600926
 
 
 /*******************************************************************************
@@ -48,9 +50,18 @@ uint32_t TimeOfFlight;
 uint32_t REdgeRead; // Riseing edge read
 uint32_t FEdgeRead; // Falling
 TIM_HandleTypeDef htim3;
+double PingDist;
+bool PingClose;
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
+// Helper Functions ------------------------------------------------------------
+double TimeFlight2in(uint32_t time){
+    // this was for inches before correction
+    double x = (double) time;
+    return (X_COEF*x + BIAS);
+}
+// ISR -------------------------------------------------------------------------
 // Timer ISR -------------------------------------------------------------------
 void TIM3_IRQHandler(void)
 {
@@ -62,18 +73,15 @@ void TIM3_IRQHandler(void)
         switch (CurrentState)
         {
         case Waiting:
+        // Timer is 10k Hz
             CurrentState = Trigger;
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
-            // set timer to 10us
-            // timer ticks 1 per us
             TIM3->ARR = 1;
             break;
 
         case Trigger:
             CurrentState = Waiting;
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
-            // set timer to 1s
-            // timer ticks 1 per us
             TIM3->ARR = 1000;
 
             break;
@@ -86,6 +94,7 @@ void TIM3_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
     // EXTI line interrupt detected
+    // PING ISR
     if (__HAL_GPIO_EXTI_GET_IT(PING_TRIG) != RESET)
     {
         __HAL_GPIO_EXTI_CLEAR_IT(PING_TRIG); // clear interrupt flag
@@ -97,8 +106,13 @@ void EXTI9_5_IRQHandler(void)
         else{ // fall edge
             FEdgeRead = TIMERS_GetMicroSeconds();
             TimeOfFlight = FEdgeRead-REdgeRead;
+            PingDist = TimeFlight2in(TimeOfFlight);
+            
         }
     }
+    // CapTouch ISR
+    if (__HAL_GPIO_EXTI_GET_IT(CAPTOUCH_PIN) != RESET)
+    {  
          // Clear interrupt flag.
          __HAL_GPIO_EXTI_CLEAR_IT(CAPTOUCH_PIN);
          // Anything that needs to happen on rising edge of PB5
@@ -122,6 +136,7 @@ void EXTI9_5_IRQHandler(void)
             }
             laststate = currentstate;
         }
+    }
         
 
      
@@ -148,7 +163,7 @@ char SensorInit(void){
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     // EXTI interrupt init
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1,1);
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0,0);
     HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
     // the rest of the function goes here
     TIMER_Init();
@@ -202,6 +217,8 @@ char SensorInit(void){
     TimeOfFlight = 0;
     REdgeRead = 0;
     FEdgeRead = 0;
+    PingDist = 0;
+    PingClose = false;
     // while(1){
     //     printf("%i\r\n",Period);
     // }
