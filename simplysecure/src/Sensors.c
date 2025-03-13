@@ -52,6 +52,7 @@ uint32_t FEdgeRead; // Falling
 TIM_HandleTypeDef htim3;
 double PingDist;
 bool PingClose;
+Event PingEvent;
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -107,6 +108,21 @@ void EXTI9_5_IRQHandler(void)
             FEdgeRead = TIMERS_GetMicroSeconds();
             TimeOfFlight = FEdgeRead-REdgeRead;
             PingDist = TimeFlight2in(TimeOfFlight);
+            if ((PingDist<PING_CLOSE_THRESH-PING_CLOSE_TOL) && !PingClose)
+            {
+                PingClose = true;
+                PingEvent.Label = PING_CLOSE;
+                PingEvent.Data = &PingDist;
+                PostSimplyFSM(PingEvent,PING_Priority);
+            }
+            else if ((PingDist>PING_CLOSE_THRESH-PING_CLOSE_TOL) && PingClose)
+            {
+                PingClose = false;
+                PingEvent.Label = PING_FAR;
+                PingEvent.Data = &PingDist;
+                PostSimplyFSM(PingEvent,PING_Priority);
+            }
+            
             
         }
     }
@@ -128,11 +144,11 @@ void EXTI9_5_IRQHandler(void)
         {
             if (currentstate)
             {
-                PostTemplateFSM(PRESSED,CAPTOUCH_Priority);
+                PostSimplyFSM(PRESSED,CAPTOUCH_Priority);
             }
             else
             {
-                PostTemplateFSM(UNPRESSED,CAPTOUCH_Priority);
+                PostSimplyFSM(UNPRESSED,CAPTOUCH_Priority);
             }
             laststate = currentstate;
         }
@@ -219,6 +235,7 @@ char SensorInit(void){
     FEdgeRead = 0;
     PingDist = 0;
     PingClose = false;
+    PingEvent = NO_EVENT;
     // while(1){
     //     printf("%i\r\n",Period);
     // }
