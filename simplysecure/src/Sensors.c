@@ -66,15 +66,16 @@ void TIM3_IRQHandler(void)
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
             // set timer to 10us
             // timer ticks 1 per us
-            TIM3->ARR = 100;
+            TIM3->ARR = 1;
             break;
 
         case Trigger:
             CurrentState = Waiting;
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
-            // set timer to 60ms
+            // set timer to 1s
             // timer ticks 1 per us
-            TIM3->ARR = 64000;
+            TIM3->ARR = 1000;
+
             break;
         default:
             break;
@@ -106,9 +107,9 @@ void EXTI9_5_IRQHandler(void)
          // to calculate the period, Filters the result to reduce noise first with a 
          // 255 point moving avg filter first
          CurrentTime = TIMERS_GetMicroSeconds();
-         Period = MovingAvgFIT(CurrentTime-LastTime,1);
+         Period = MovingAvgFIT(CurrentTime-LastTime,0);
          LastTime = CurrentTime;
-        currentstate = HystFilter256(Period,90,5,0);
+        currentstate = HystFilter256(Period,1500,200,0);
         if (currentstate != laststate)
         {
             if (currentstate)
@@ -167,7 +168,7 @@ char SensorInit(void){
     TIM_ClockConfigTypeDef sClockSourceConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
     htim3.Instance = TIM3;
-    htim3.Init.Prescaler = 83; // divide by 1 prescaler (84-1) = 1 Mhz tick
+    htim3.Init.Prescaler = 83*100; // divide by 1 prescaler (84-1) = 1 Mhz tick
     htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim3.Init.Period = 0xFFFF; // MUST CHANGE. number of clock cycles between interrupts
     htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -201,5 +202,8 @@ char SensorInit(void){
     TimeOfFlight = 0;
     REdgeRead = 0;
     FEdgeRead = 0;
+    // while(1){
+    //     printf("%i\r\n",Period);
+    // }
     return SUCCESS;
 }
