@@ -29,3 +29,5 @@
 // distance is in inches 
 #define PING_CLOSE_THRESH 12
 #define PING_CLOSE_TOL 5
+// HAL  Config
+#define HAL_PIN GPIO_PIN_7

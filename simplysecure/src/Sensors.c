@@ -53,6 +53,8 @@ TIM_HandleTypeDef htim3;
 double PingDist;
 bool PingClose;
 Event PingEvent;
+// for HAL Sensor --------------------------------------------------------------
+
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -153,6 +155,22 @@ void EXTI9_5_IRQHandler(void)
             laststate = currentstate;
         }
     }
+    if (__HAL_GPIO_EXTI_GET_IT(HAL_PIN) != RESET)
+    {
+        __HAL_GPIO_EXTI_CLEAR_IT(HAL_PIN);
+        if (HAL_GPIO_ReadPin(GPIOB,HAL_PIN));
+        {
+            PostSimplyFSM((Event){DOOR_CLOSED,NULL},HAL_Priority);
+        }
+        else
+        {
+            PostSimplyFSM((Event){DOOR_OPENED,NULL},HAL_Priority);
+        }
+        
+        
+
+    }
+    
         
 
      
@@ -236,8 +254,12 @@ char SensorInit(void){
     PingDist = 0;
     PingClose = false;
     PingEvent = NO_EVENT;
-    // while(1){
-    //     printf("%i\r\n",Period);
-    // }
+    // HAL Init
+    GPIO_InitStruct.Pin = HAL_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 2);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
     return SUCCESS;
 }
