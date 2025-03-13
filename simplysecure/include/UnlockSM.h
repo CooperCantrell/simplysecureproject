@@ -42,7 +42,7 @@
  *        to rename this to something appropriate.
  *        Returns TRUE if successful, FALSE otherwise
  * @author Anirudh Iyer 2/8/2025 */
- bool InitSimplyFSM(uint16_t Priority);
+ bool InitUnlockFSM(uint16_t Priority);
 
  /**
  * @Function PostTemplateFSM(Event inpEvent, unint16_t Priority)
@@ -51,7 +51,7 @@
  * @return TRUE or FALSE
  * @brief This function is a wrapper to posting to the master queue
  * @author Cooper Cantrell 2/8/2025 */
-bool PostSimplyFSM(Event InputEvent, uint16_t Priority);
+bool PostUnlockFSM(Event InputEvent, uint16_t Priority);
 
 /**
  * @Function RunTemplateFSM(Event ThisEvent)
@@ -61,5 +61,5 @@ bool PostSimplyFSM(Event InputEvent, uint16_t Priority);
  * @brief This is a function that you write and rename for your use
  * @author Cooper Cantrell 2/8/2025
  */
-Event RunSimplyFSM(Event InputEvent);
+Event RunUnlockFSM(Event InputEvent);
  #endif 

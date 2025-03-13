@@ -29,6 +29,12 @@ typedef enum {
     INTERNAL_SCHEDULETIMERINTERRUPT,
     CAP_ON,
     CAP_OFF,
+    SET_PASSWORD,
+    PING_CLOSE,
+    PING_FAR,
+    UNLOCK,
+    DOOR_OPENED,
+    DOOR_CLOSED,
 } EventLabel;
 static const char *EventNames[] = {
     "NONE",
