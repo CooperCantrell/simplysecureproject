@@ -31,3 +31,4 @@
 #define PING_CLOSE_TOL 5
 // HAL  Config
 #define HAL_PIN GPIO_PIN_7
+#define HAL_Priority 0

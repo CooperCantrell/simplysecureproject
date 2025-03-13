@@ -14,6 +14,9 @@
         "sensors.h": "c",
         "config.h": "c",
         "timers.h": "c",
-        "pwm.h": "c"
+        "pwm.h": "c",
+        "buttons.h": "c",
+        "timerpost.h": "c",
+        "stdio.h": "c"
     }
 }

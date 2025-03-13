@@ -158,7 +158,7 @@ void EXTI9_5_IRQHandler(void)
     if (__HAL_GPIO_EXTI_GET_IT(HAL_PIN) != RESET)
     {
         __HAL_GPIO_EXTI_CLEAR_IT(HAL_PIN);
-        if (HAL_GPIO_ReadPin(GPIOB,HAL_PIN));
+        if (HAL_GPIO_ReadPin(GPIOB,HAL_PIN))
         {
             PostSimplyFSM((Event){DOOR_CLOSED,NULL},HAL_Priority);
         }

@@ -35,6 +35,7 @@ typedef enum {
     UNLOCK,
     DOOR_OPENED,
     DOOR_CLOSED,
+    BUTTON,
 } EventLabel;
 static const char *EventNames[] = {
     "NONE",

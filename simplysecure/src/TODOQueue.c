@@ -15,6 +15,7 @@
 #include <assert.h>
 #include <config.h>
 #include <TimerPost.h>
+#include <buttons.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -41,6 +42,7 @@ typedef struct TODOListobj {
  ******************************************************************************/
 TODOList MasterQueue;
 bool (*StateMachineINIT[])(uint16_t) = SM_INIT;
+uint8_t LastState;
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -99,6 +101,8 @@ TODOList TODOQueue_init(uint16_t Size){
     // set the output
     out->Head = NULL;
     out->full = false;
+    BUTTONS_Init();
+    LastState =  buttons_state();
     return out;
 }
 
@@ -253,6 +257,13 @@ void RunQueue(void){
             break;
         }
         runtimer();
+        // change in button state
+        if (LastState ^ buttons_state())
+        {
+            LastState = buttons_state();
+            PostSimplyFSM((Event){BUTTON,&LastState});
+        }
+        
     }
     
 }
