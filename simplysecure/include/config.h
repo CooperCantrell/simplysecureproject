@@ -12,11 +12,13 @@
 
 // state machine config
 #include <SimplyFSM.h>
-#define SM_INIT {InitSimplyFSM}
+#include "UnlockFSM.h"
+#define SM_INIT {InitSimplyFSM, InitUnlockFSM}
 
 // timers config
 // keep this small my code is slow
-#define TIMERPOSTSIZE 4
+#define TIMERPOSTSIZE 64
+#define FORBIDDEN_ID -1
 // sensors config MUST USE GPIO 5-9-----------
 //captouch config 
 #define CAPTOUCH_PIN GPIO_PIN_5
@@ -32,3 +34,6 @@
 // HAL  Config
 #define HAL_PIN GPIO_PIN_7
 #define HAL_Priority 0
+
+// temp
+#define HEARTID 64

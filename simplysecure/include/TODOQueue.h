@@ -65,7 +65,7 @@ TODOList TODOQueue_init(uint16_t Size);
  * @author Cooper Cantrell, 1/27/2025 
  * @edited --
 */
-bool EnQueue(TODOList Queue, uint16_t Priority, TODOItem Item);
+bool EnQueue(TODOList Queue, uint32_t Priority, TODOItem Item);
 
 /**
  * @Function DeQueue(TODOList Queue)
@@ -123,7 +123,7 @@ void RunQueue(void);
  * @author Cooper Cantrell, 2/6/2025 
  * @edited --
 */
-bool EnQueueMaster(uint16_t Priority, TODOItem item);
+bool EnQueueMaster(uint32_t Priority, TODOItem item);
 /**
  * @Function TODOQueue_exit(TODOList List);
  * @param  TODOList The TODOList that will be freed in mem 
@@ -133,4 +133,8 @@ bool EnQueueMaster(uint16_t Priority, TODOItem item);
  * @edited --
 */
 void TODOQueue_exit(TODOList* List);
+
+// only for 167 ----
+uint32_t ReadPriorty(TODOList Queue);
+void* GetData (TODOList Queue);
 #endif 

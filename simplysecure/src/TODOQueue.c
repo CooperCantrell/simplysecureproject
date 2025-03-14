@@ -11,6 +11,7 @@
  * MODULE #INCLUDE                                                             *
  ******************************************************************************/
 #include "TODOQueue.h"
+#include "timers.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <config.h>
@@ -27,7 +28,7 @@
 typedef struct NodeObj* Node;
 // private NodeObj type
 typedef struct NodeObj{ 
-    uint16_t Priority;
+    uint32_t Priority;
     TODOItem data;
     Node next;
 } NodeObj;
@@ -118,7 +119,7 @@ TODOList TODOQueue_init(uint16_t Size){
  * @author Cooper Cantrell, 1/27/2025 
  * @edited --
 */
-bool EnQueue(TODOList Queue, uint16_t Priority, TODOItem Item){
+bool EnQueue(TODOList Queue, uint32_t Priority, TODOItem Item){
     // if the list is full but is higher priority than something that exists on the list, 
     // the lowest priority will be removed and new item will be added in its proper place
     // NOT YET IMPLEMENTED AS OF NOW IF FULL WONT ADD
@@ -243,6 +244,7 @@ Event Execute(TODOList Queue){
 void RunQueue(void){
     // Init the Queue to the size in FLARECONFIG
     MasterQueue = TODOQueue_init(TODO_SIZE);
+    BUTTONS_Init();
     // Init all needed state machines (IN PROGRESS)
     for (size_t i = 0; i < ARRAY_SIZE(StateMachineINIT); i++)
     {
@@ -252,7 +254,6 @@ void RunQueue(void){
     // Run forever completing the items in the queue
     while (true)
     {
-        
         if(Execute(MasterQueue).Label == SERROR){
             break;
         }
@@ -261,7 +262,7 @@ void RunQueue(void){
         if (LastState ^ buttons_state())
         {
             LastState = buttons_state();
-            PostSimplyFSM((Event){BUTTON,&LastState});
+            PostSimplyFSM((Event){BUTTON,&LastState}, 4);
         }
         
     }
@@ -278,7 +279,7 @@ void RunQueue(void){
  * @author Cooper Cantrell, 2/6/2025 
  * @edited --
 */
-bool EnQueueMaster(uint16_t Priority, TODOItem item){
+bool EnQueueMaster(uint32_t Priority, TODOItem item){
     return EnQueue(MasterQueue,Priority,item);
 }
 
@@ -312,10 +313,27 @@ void TODOQueue_exit(TODOList* PT){
     free (List);
     *PT = NULL;
 }
+
+
+// only for 167
+uint32_t ReadPriorty(TODOList Queue){
+    if (IsEmpty(Queue))
+    {
+        return -1;
+    }
+    else
+    {
+        return Queue->Head->Priority;
+    }
+    
+}
+void* GetData (TODOList Queue){
+    return Queue->Head->data.Input.Data;
+}
 #ifdef TODOQUEUE_TEST
 //tests go here
 #include <stdio.h>
-void Speak(uint16_t a ,void* b){
+void Speak(uint32_t a ,void* b){
     printf("Hello\n");
 }
 

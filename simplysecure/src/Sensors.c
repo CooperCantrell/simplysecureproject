@@ -255,11 +255,11 @@ char SensorInit(void){
     PingClose = false;
     PingEvent = NO_EVENT;
     // HAL Init
-    GPIO_InitStruct.Pin = HAL_PIN;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 2);
-    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+    // GPIO_InitStruct.Pin = HAL_PIN;
+    // GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+    // GPIO_InitStruct.Pull = GPIO_NOPULL;
+    // HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    // HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 2);
+    // HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
     return SUCCESS;
 }

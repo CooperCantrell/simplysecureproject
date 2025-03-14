@@ -18,11 +18,12 @@
 #include <stdbool.h>
 #include <math.h>
 #include <leds.h>
+#include <stdio.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 #define GRACEPERIOD 30000
-//#define TATTLE
+#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -43,6 +44,8 @@ static const char *StateNames[] = {
     "ScreamOFF",
 };
 
+#define UNLOCKFSMTIMERID 50
+
 typedef enum TimerIDs{
     GracePeriod,
     Scream,
@@ -56,26 +59,13 @@ typedef enum TimerIDs{
 
  static UnlockFSMState_t CurrentState = Init; 
 
- static bool passwordSetMode = false;
-
  uint16_t UnlockPriority;
 
 
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
-uint32_t recordTime(bool initFlag){
-    static uint32_t startTime = 0;
-    if(initFlag){
-        startTime = TIMERS_GetMicroSeconds();
-        return 0;
-    } else {
-        uint32_t curTime = TIMERS_GetMilliSeconds();
-        uint32_t deltaTime = curTime - startTime;
-        startTime = curTime;
-        return deltaTime;
-    }
-}
+
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS FUNCTIONS                                                  *
@@ -143,21 +133,21 @@ uint32_t recordTime(bool initFlag){
     {
     case Init:
         if(InputEvent.Label == INIT){
-            // if(HALL_DoorClosed()){
-            //     nextstate = Locked;
-            //     Transition = true;
-            //     InputEvent = NO_EVENT;
-            // } else {
-            //     nextstate = Unlocked;
-            //     Transition = true;
-            //     InputEvent = NO_EVENT;
-            // }
+            if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
+                nextstate = Locked;
+                Transition = true;
+                InputEvent = NO_EVENT;
+            } else {
+                nextstate = Unlocked;
+                Transition = true;
+                InputEvent = NO_EVENT;
+            }
         }
         break;
     case Unlocked:
-        ServoControl(false);
+        //ServoControl(false);//some kind of servo control function need to go here
         if(InputEvent.Label == PING_FAR){
-            if(HALL_DoorClosed()){
+            if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
                 nextstate = Locked;
                 Transition = true;
                 InputEvent = NO_EVENT;
@@ -167,17 +157,22 @@ uint32_t recordTime(bool initFlag){
                 InputEvent = NO_EVENT;
             }
         }
+        if(InputEvent.Label == DOOR_CLOSED){
+            nextstate = Locked;
+            Transition = true;
+            InputEvent = NO_EVENT;
+        }
         break;
     case Locking:
         if(InputEvent.Label == ENTRY){
-            TimerPosting(30000, RunUnlockFSM, GracePeriod);
+            TimerPosting(30000, RunUnlockFSM, UNLOCKFSMTIMERID+GracePeriod);
         }
         if(InputEvent.Label == DOOR_CLOSED){
             nextstate = Locked;
             Transition = true;
             InputEvent = NO_EVENT;
         }
-        if(InputEvent.Label == TIMEOUT && InputEvent.Data == GracePeriod){
+        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == UNLOCKFSMTIMERID+GracePeriod){
             
             nextstate = ScreamON;
             Transition = true;
@@ -186,9 +181,9 @@ uint32_t recordTime(bool initFlag){
         break;
     case ScreamON:
         if(InputEvent.Label == ENTRY){
-            TimerPosting(500, RunUnlockFSM, Scream);
+            TimerPosting(500, RunUnlockFSM, UNLOCKFSMTIMERID+Scream);
         }
-        if(InputEvent.Label == TIMEOUT && InputEvent.Data == Scream){
+        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == UNLOCKFSMTIMERID+Scream){
             nextstate = ScreamOFF;
             Transition = true;
             InputEvent = NO_EVENT;
@@ -198,7 +193,7 @@ uint32_t recordTime(bool initFlag){
         if(InputEvent.Label == ENTRY){
             TimerPosting(500, RunUnlockFSM, Scream);
         }
-        if(InputEvent.Label == TIMEOUT && InputEvent.Data == Scream){
+        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == UNLOCKFSMTIMERID+Scream){
             nextstate = ScreamON;
             Transition = true;
             InputEvent = NO_EVENT;

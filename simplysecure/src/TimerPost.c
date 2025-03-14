@@ -14,11 +14,11 @@
 #include <config.h>
 #include <Events.h>
 #include <timers.h>
+#include <TODOQueue.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 // #define FILENAME_TEST
-
 /*******************************************************************************
  * PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
@@ -26,12 +26,12 @@
 /*******************************************************************************
  * PRIVATE VARIABLES                                                           *
  ******************************************************************************/
-static uint32_t endtimes[TIMERPOSTSIZE];
-static Event(*endItems[TIMERPOSTSIZE])(Event);
-static Event endParams[TIMERPOSTSIZE];
-static uint16_t endID[TIMERPOSTSIZE];
-uint16_t head,tail;
-bool full;
+TODOList TimerQueue;
+uint32_t MAX = -1;
+// this meth of storeing data is bad can over ride in case [s,s,s,l] 
+// s = short wait l = long wait
+uint16_t IDs[TIMERPOSTSIZE];
+bool full = false; 
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -48,13 +48,12 @@ bool full;
 */
 void TimerPostInit(void){
     TIMER_Init();
-    head = 0;
-    tail = 0;
-    full = false;
-    for (uint16_t i = 0; i < TIMERPOSTSIZE; i++)
+    TimerQueue = TODOQueue_init(TIMERPOSTSIZE);
+    for (size_t i = 0; i < TIMERPOSTSIZE; i++)
     {
-        endParams[i].Label = TIMEOUT;
+        IDs[i] = -1;
     }
+    
     
 
 }
@@ -69,23 +68,36 @@ void TimerPostInit(void){
  * @brief This function adds a timer to the running list
  * @author Cooper Cantrell, 3/6/2025 
 */
+#include <stdio.h>
 bool TimerPosting(uint32_t Time, Event(*PostItem)(Event), uint16_t ID){
-    if (!full)
-    {
-        uint32_t currenttime = TIMERS_GetMilliSeconds();
-        endtimes[tail] = currenttime + Time;
-        endItems[tail] = PostItem;
-        endID[tail] = ID;
-        endParams[tail].Data = &endID[tail];
-        tail++;
-        tail = tail%TIMERPOSTSIZE;
-        full = (tail == head);
-        return true;
+    if(!full){
+        uint16_t Tracker = 0;
+        TODOItem TimerItem;
+        for (; Tracker < TIMERPOSTSIZE; Tracker++)
+        {
+            if (IDs[Tracker] == -1)
+            {
+                IDs[Tracker] = ID;
+                break;
+            }
+            
+        }
+        
+        TimerItem.Input = (Event){TIMEOUT,IDs+Tracker};
+        printf("Added Timer with ID %u, %u, %u and pointer %p, %p\r\n",*(uint16_t*)(IDs+Tracker),IDs[Tracker], ID, &(IDs[Tracker]) ,IDs+Tracker);
+        TimerItem.Func = PostItem;
+        uint32_t  CurrentTime = TIMERS_GetMilliSeconds();
+        //printf("Added Item With ID %p \r\n",&(IDs[Tracker]));
+        //HAL_Delay(2);
+        full = !EnQueue(TimerQueue,MAX - (Time+CurrentTime),TimerItem);
+        return full;
+        
     }
     else
     {
         return false;
     }
+    
     
 }
 
@@ -96,40 +108,26 @@ bool TimerPosting(uint32_t Time, Event(*PostItem)(Event), uint16_t ID){
  * @brief runs the timer
  * @author Cooper Cantrell, 3/6/2025 
 */
+
 void runtimer(void){
-    uint16_t count = head;
-    uint32_t currenttime = TIMERS_GetMilliSeconds();
-    if (!full)
+uint32_t  CurrentTime = TIMERS_GetMilliSeconds();
+if (CurrentTime>=(MAX - ReadPriorty(TimerQueue)))
+{
+    u_int16_t ID = *(uint16_t*)GetData(TimerQueue);
+    Execute(TimerQueue);
+    for (size_t i = 0; i < TIMERPOSTSIZE; i++)
     {
-    while (count != tail)
-    {
-        if(endtimes[count] <= currenttime){
-            
-            head++;
-            head = head%TIMERPOSTSIZE;
-            full = false;
-            endItems[count](endParams[count]);
-        }
-        
-        
-        count++;
-        count = count%TIMERPOSTSIZE;
-    }
-    }
-    else
-    {
-        for (uint16_t i = 0; i < TIMERPOSTSIZE; i++)
+        if (IDs[i] == ID)
         {
-        if(endtimes[i] <= currenttime){
-            
-            head++;
-            head = head%TIMERPOSTSIZE;
-            full = false;
-            endItems[i](endParams[i]);
-        }
+            IDs[i] = -1;
+            break;
         }
         
     }
+    
+    
+}
+
 
 
 }

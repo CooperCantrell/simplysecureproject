@@ -15,25 +15,29 @@
 #include "TODOQueue.h"
 #include "timers.h"
 #include "TimerPost.h"
+#include "UnlockFSM.h"
 #include <stdbool.h>
 #include <math.h>
+#include <stdlib.h>
 #include <leds.h>
+#include <stdio.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 #define STARTCYCLES 3//number of taps and pauses need to calibrate the passcode tempo
-#define DEFAULTTEMPO 1000//default pause and tap is one second long
+#define DEFAULTTEMPO 1000000//default pause and tap is one second long
 #define MAXCODELENGTH 50//maximun number of taps and waits combined in a code
-#define LENIENCY 100// how many milliseconds the user is allowed to be off from the correct time
+#define LENIENCY 1000000// how many microseconds the user is allowed to be off from the correct time
 #define SIMPLYTIMERID 1//The ID used for the Timer posting
 #define UNLOCKEVENT_PRIORITY 3
-//#define TATTLE
+#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
     Init,
     MeasureON,
     MeasureOFF,
+    Wait,
     ON,
     OFF,
     Unlock,
@@ -44,6 +48,7 @@ static const char *StateNames[] = {
 	"Init",
     "MeasureON",
     "MeasureOFF",
+    "Wait",
     "ON",
     "OFF",
     "Unlock",
@@ -61,7 +66,7 @@ static const char *StateNames[] = {
  static bool passwordSetMode = false;
 
  uint16_t SimplyPriority;
-
+uint16_t Heartbeat=0;
  uint32_t onTime[STARTCYCLES];
  uint32_t offTime[STARTCYCLES];
  static float OffTempo = 1;
@@ -132,9 +137,7 @@ uint32_t recordTime(bool initFlag){
   * @author Cooper Cantrell 2/8/2025
   */
  Event RunSimplyFSM(Event InputEvent){
-    #ifdef TATTLE
-    printf("%s called, Input = %s:  STATE = %s \n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState]);
-    #endif
+
     // if (InputEvent.Label == CAP_ON)
     // {
     //     set_leds(1);
@@ -146,31 +149,52 @@ uint32_t recordTime(bool initFlag){
     bool Transition = false;
     SimplyFSMState_t nextstate;
     //count is used to run the start cycle and index through the passcode
+    #ifdef TATTLE
+    printf("%s called, Input = %s:  STATE = %s DATA = %p\n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState],InputEvent.Data);
+
+    
+    #endif
+    if (InputEvent.Label == TIMEOUT)
+    {
+        printf("ID: %u\r\n", *(uint16_t*)InputEvent.Data);
+    }
+    
+    if (((*(uint16_t*)InputEvent.Data)==HEARTID)){
+        TimerPosting(1000,RunSimplyFSM,HEARTID);
+        InputEvent = NO_EVENT;
+        printf("Ba-Bum x%u\r\n",Heartbeat++);
+        printf("ID: %p\r\n", (uint16_t*)InputEvent.Data);
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3,!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3));
+    }
     static uint8_t count = 0;
     switch (CurrentState)
     {
     case Init:
-        if(InputEvent.Label == SET_PASSWORD){
+        if(InputEvent.Label == BUTTON){
             passwordSetMode = true;
+        }
+        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == SIMPLYTIMERID){
+            set_leds(0x00);
         }
         if(InputEvent.Label == CAP_ON){
             recordTime(true);//Reset and start the record time function
             Transition = true;
             InputEvent = NO_EVENT;
             nextstate = MeasureON;
+            set_leds(0x01);
 
         }
         if(InputEvent.Label == INIT){
             TIMER_Init();//should be done earlier, however, initializing the timers twice wont hurt as it has protections
             count = 0;
             passwordSetMode = true;//When device first boots up, set the password
+            TimerPosting(1000,RunSimplyFSM,HEARTID);
         }
         break;
     
     case MeasureON://Provides a test cycle to measure the users tempo, so the same rythm can be played with differnt tempos and still work
         if(InputEvent.Label == CAP_OFF){
             onTime[count] = recordTime(false);//record the duration the user held the capacitor on
-            count++;//move to next test cycle
             Transition = true;
             InputEvent = NO_EVENT;
             nextstate = MeasureOFF;
@@ -180,23 +204,26 @@ uint32_t recordTime(bool initFlag){
     
         if(InputEvent.Label == CAP_ON){
             offTime[count] = recordTime(false);// records the time the user held off the capcitor
+            count++;//move to next test cycle
             if(count >= STARTCYCLES){//provides the logic for leaving the test cycle after STARTCYCLE cycles have passed
                 count = 0;//reset count for use for iterating through the password array
 
                 //calculate the averge on and off time for the tempo
-                int onSum = 0;
-                int offSum = 0;
+                uint64_t onSum = 0;
+                uint64_t offSum = 0;
                 for(int i = 0; i < STARTCYCLES; i++){
+                    //printf("onTime: %ld, offTime: %ld\r\n", onTime[i], offTime[i]);
                     onSum += onTime[i];
                     offSum += offTime[i];
                 }
                 //provides a scaler that converts from the users current tempo to the standard tempo of 1 second per period
-                OnTempo = DEFAULTTEMPO*(STARTCYCLES/(onSum));
-                OffTempo = DEFAULTTEMPO*(STARTCYCLES/(offSum));
+                OnTempo = DEFAULTTEMPO*(STARTCYCLES/((float)onSum));
+                OffTempo = DEFAULTTEMPO*(STARTCYCLES/((float)offSum));
+                //printf("Ontempo: %f, Offtempo: %f\r\n", OnTempo, OffTempo);
 
                 Transition = true;
                 InputEvent = NO_EVENT;
-                nextstate = ON;
+                nextstate = Wait;
             } else{
 
                 Transition = true;
@@ -205,8 +232,22 @@ uint32_t recordTime(bool initFlag){
             }
         }
         break;
+    case Wait:
+        if(InputEvent.Label == ENTRY){
+            
+            set_leds(0x03);
+        }
+        if(InputEvent.Label == CAP_ON){
+            recordTime(true);
+            set_leds(0x07);
+            Transition = true;
+            InputEvent = NO_EVENT;
+            nextstate = ON;
+        }
+        break;
     case ON://measures and compares the users on period at to the passcode at index count
         if(InputEvent.Label == CAP_OFF){
+            set_leds(0x03);
             uint32_t time = OnTempo * recordTime(false);//converts user time to standard time
             if(count >= MAXCODELENGTH){//shouldn't happen, but prevents crashing
                 Transition = true;
@@ -225,15 +266,17 @@ uint32_t recordTime(bool initFlag){
                     InputEvent = NO_EVENT;
                     nextstate = Unlock;
                 }
-                if(abs((int64_t)time - (int64_t)PassCode[count][0]) <  OnTempo*LENIENCY){//successful tap
+                if(abs((int64_t)time - (int64_t)PassCode[count][0]) <  (int64_t)(OnTempo*LENIENCY)){//successful tap
                     //TODO: add frequency check
                     Transition = true;
                     InputEvent = NO_EVENT;
                     nextstate = OFF;
                 } else {//failed tap
+                    printf("expected time: %ld, recieved: %ld\r\n", PassCode[count][0], time);
                     Transition = true;
                     InputEvent = NO_EVENT;
                     nextstate = Reset;
+                    set_leds(0);
                 }
             }
             count++;
@@ -241,19 +284,26 @@ uint32_t recordTime(bool initFlag){
         }
         break;
     case OFF:
+        
         if(InputEvent.Label == ENTRY){//creates a 3 second timeout timer
             if(passwordSetMode){
-                TimerPosting(3000, RunSimplyFSM, SIMPLYTIMERID);
+                TimerPosting(3000, RunSimplyFSM, count);
             }
         }
-        if(InputEvent.Label == TIMEOUT && InputEvent.Data == SIMPLYTIMERID){//implements the stop of the new passcode
+        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == count){//implements the stop of the new passcode
             PassCode[count][0] = 0;
             PassCode[count][1] = 0;
             Transition = true;
             InputEvent = NO_EVENT;
             nextstate = Unlock;
+            // for(int i = 0; PassCode[i][0] != 0 && i < MAXCODELENGTH; i++){
+            //     printf("Passcode[%d]: %ld\r\n", i, PassCode[i][0]);
+            // }
+            // printf("count: %d\r\n", count);
+            // printf("Passcode[%d]: %ld\r\n", count, PassCode[count][0]);
         }
         if(InputEvent.Label == CAP_ON){
+            set_leds(0x07);
             uint32_t time = OnTempo * recordTime(false);
             if(count >= MAXCODELENGTH){//shouldn't happen in check mode, but prevents crashing in set password mode
                 Transition = true;
@@ -263,20 +313,22 @@ uint32_t recordTime(bool initFlag){
             if(passwordSetMode){//swab behavoir from checking to recording based on if the password is being set
                 PassCode[count][0] = time;
                 //PassCode[count][1] = //Heres where I would put the frequency IF I HAD IT
+                Transition = true;
+                InputEvent = NO_EVENT;
+                nextstate = ON;
             } else {
 
                 if(PassCode[count][0] == 0){//succeessfully reached the end of the password
                     Transition = true;
                     InputEvent = NO_EVENT;
                     nextstate = Unlock;
-                }
-            
-                if(abs((int64_t)time - (int64_t)PassCode[count][0]) <  OffTempo*LENIENCY){//successful tap
+                } else if(abs((int64_t)time - (int64_t)PassCode[count][0]) <  OffTempo*LENIENCY){//successful tap
                     //TODO add frequency checks
                     Transition = true;
                     InputEvent = NO_EVENT;
                     nextstate = ON;
                 } else {//failed tap
+                    set_leds(0);
                     Transition = true;
                     InputEvent = NO_EVENT;
                     nextstate = Reset;
@@ -288,6 +340,9 @@ uint32_t recordTime(bool initFlag){
         break;
     case Unlock:
         if(InputEvent.Label == ENTRY){
+            TimerPosting(500, RunSimplyFSM, SIMPLYTIMERID);
+
+            set_leds(0xFF);
             Event UnlockEvent = {UNLOCK, 0};
             PostUnlockFSM(UnlockEvent, UNLOCKEVENT_PRIORITY);
             
