@@ -134,7 +134,7 @@ typedef enum TimerIDs{
     {
     case Init:
         if(InputEvent.Label == INIT){
-            if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
+            if(!HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
                 nextstate = Locked;
                 Transition = true;
                 InputEvent = NO_EVENT;
@@ -155,7 +155,7 @@ typedef enum TimerIDs{
     case Unlocked:
         //ServoControl(false);//some kind of servo control function need to go here
         if(InputEvent.Label == PING_FAR){
-            if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
+            if(!HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
                 nextstate = Locked;
                 Transition = true;
                 InputEvent = NO_EVENT;
@@ -196,13 +196,23 @@ typedef enum TimerIDs{
             Transition = true;
             InputEvent = NO_EVENT;
         }
+        if(InputEvent.Label == DOOR_CLOSED){
+            nextstate = Locked;
+            Transition = true;
+            InputEvent = NO_EVENT;
+        }
         break;
     case ScreamOFF:
         if(InputEvent.Label == ENTRY){
-            TimerPosting(500, RunUnlockFSM, Scream);
+            TimerPosting(500, RunUnlockFSM, UNLOCKFSMTIMERID+Scream);
         }
         if(InputEvent.Label == TIMEOUT && InputEvent.Data == UNLOCKFSMTIMERID+Scream){
             nextstate = ScreamON;
+            Transition = true;
+            InputEvent = NO_EVENT;
+        }
+        if(InputEvent.Label == DOOR_CLOSED){
+            nextstate = Locked;
             Transition = true;
             InputEvent = NO_EVENT;
         }

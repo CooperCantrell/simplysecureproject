@@ -35,6 +35,8 @@
 // HAL  Config
 #define HAL_PIN GPIO_PIN_7
 #define HAL_Priority 0
-
+//Servo Config
+#define SERVO_PIN GPIO_PIN_4
+#define SERVO_Priority 2
 // temp
 #define HEARTID 64
