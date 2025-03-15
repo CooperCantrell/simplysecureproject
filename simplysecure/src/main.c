@@ -21,6 +21,7 @@
 #include <leds.h>
 //#include <PING.h>
 #include <TimerPost.h>
+#include <Speaker.h>
 int main(void)
 {
     
@@ -30,6 +31,7 @@ int main(void)
     SensorInit();
     LEDS_Init();
     TimerPostInit();
+    SpeakerInit();
     printf("Lock Firmware for the lock is running\r\n");
     // Running as normal -----------------------------------------------------------
     RunQueue();
