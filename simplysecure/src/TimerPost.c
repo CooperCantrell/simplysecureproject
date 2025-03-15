@@ -28,7 +28,7 @@
  ******************************************************************************/
 TODOList TimerQueue;
 uint32_t MAX = -1;
-
+static bool initflag = true;
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -44,8 +44,12 @@ uint32_t MAX = -1;
  * @author Cooper Cantrell, 3/6/2025 
 */
 void TimerPostInit(void){
+    if (initflag)
+    {
+    initflag = false;
     TIMER_Init();
     TimerQueue = TODOQueue_init(TIMERPOSTSIZE);
+    }
 }
 
 /**

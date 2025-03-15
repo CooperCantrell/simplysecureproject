@@ -19,6 +19,7 @@
 #include <Board.h>
 #include <Filters.h>
 #include <stdio.h>
+#include <TimerPost.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -64,6 +65,18 @@ double TimeFlight2in(uint32_t time){
     double x = (double) time;
     return (X_COEF*x + BIAS);
 }
+Event HALDebounce(Event MagEvent){
+    switch (MagEvent.Label)
+    {
+    case :
+        /* code */
+        break;
+    
+    default:
+        break;
+    }
+    return NO_EVENT;
+}
 // ISR -------------------------------------------------------------------------
 // Timer ISR -------------------------------------------------------------------
 void TIM3_IRQHandler(void)
@@ -98,12 +111,12 @@ void EXTI9_5_IRQHandler(void)
 {
     // EXTI line interrupt detected
     // PING ISR
-    if (__HAL_GPIO_EXTI_GET_IT(PING_TRIG) != RESET)
+    if (__HAL_GPIO_EXTI_GET_IT(PING_ECHO) != RESET)
     {
-        __HAL_GPIO_EXTI_CLEAR_IT(PING_TRIG); // clear interrupt flag
-
+        __HAL_GPIO_EXTI_CLEAR_IT(PING_ECHO); // clear interrupt flag
+        printf("PING\n");
         // anything that needs to happen when PB5 (ENC_B) changes state
-        if(HAL_GPIO_ReadPin(GPIOB,PING_TRIG)){ // trigger on rise edge
+        if(HAL_GPIO_ReadPin(GPIOB,PING_ECHO)){ // trigger on rise edge
             REdgeRead = TIMERS_GetMicroSeconds();
         }
         else{ // fall edge
@@ -114,15 +127,15 @@ void EXTI9_5_IRQHandler(void)
             {
                 PingClose = true;
                 PingEvent.Label = PING_CLOSE;
-                PingEvent.Data = &PingDist;
-                PostSimplyFSM(PingEvent,PING_Priority);
+                PingEvent.Data = 0;
+                PostUnlockFSM(PingEvent,PING_Priority);
             }
             else if ((PingDist>PING_CLOSE_THRESH-PING_CLOSE_TOL) && PingClose)
             {
                 PingClose = false;
                 PingEvent.Label = PING_FAR;
                 PingEvent.Data = 0;
-                PostSimplyFSM(PingEvent,PING_Priority);
+                PostUnlockFSM(PingEvent,PING_Priority);
             }
             
             
@@ -158,6 +171,7 @@ void EXTI9_5_IRQHandler(void)
     if (__HAL_GPIO_EXTI_GET_IT(HAL_PIN) != RESET)
     {
         __HAL_GPIO_EXTI_CLEAR_IT(HAL_PIN);
+        printf("HAL\n");
         if (HAL_GPIO_ReadPin(GPIOB,HAL_PIN))
         {
             PostSimplyFSM((Event){DOOR_CLOSED,0},HAL_Priority);
@@ -255,11 +269,12 @@ char SensorInit(void){
     PingClose = false;
     PingEvent = NO_EVENT;
     // HAL Init
-    // GPIO_InitStruct.Pin = HAL_PIN;
-    // GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-    // GPIO_InitStruct.Pull = GPIO_NOPULL;
-    // HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-    // HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 2);
-    // HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+    TimerPostInit();
+    GPIO_InitStruct.Pin = HAL_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 2);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
     return SUCCESS;
 }

@@ -21,6 +21,7 @@
 #define FORBIDDEN_ID -1
 // sensors config MUST USE GPIO 5-9-----------
 //captouch config 
+// NOTE GPIOB
 #define CAPTOUCH_PIN GPIO_PIN_5
 #define CAPTOUCH_Priority 2
 //PING config
