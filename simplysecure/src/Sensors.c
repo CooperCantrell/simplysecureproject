@@ -132,7 +132,7 @@ void TIM3_IRQHandler(void)
             ServoState = Trigger;
             //printf("w\n");
             HAL_GPIO_WritePin(GPIOA,SERVO_PIN,GPIO_PIN_SET);
-            set_leds(1);
+            //set_leds(1);
             //TIM3->ARR = 200 * (uint8_t)(DUTY/100);
             //TIM3->ARR = 200 * (uint8_t)((DUTY)/100);
             TIM3->ARR = (uint16_t)(2*DUTY);
@@ -144,7 +144,7 @@ void TIM3_IRQHandler(void)
             //TIM3->ARR = 200 * (uint8_t)((100-DUTY)/100);
             
             TIM3->ARR = (uint16_t)(2*(100-DUTY));
-            set_leds(0);
+            //set_leds(0);
             InterruptCount++;
             //PING state machine
             if(InterruptCount == PINGITCOUNT){
@@ -153,7 +153,7 @@ void TIM3_IRQHandler(void)
                 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
                 TIM3->ARR = 1;
             } else if (InterruptCount == 1) {
-                printf("Ping\n");
+                //printf("Ping\n");
                 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
                 // TIM3->ARR = 200 * (uint8_t)((100-DUTY)/100)-1;
                 
