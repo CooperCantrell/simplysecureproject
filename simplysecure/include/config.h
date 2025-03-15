@@ -43,5 +43,5 @@
 // temp
 #define HEARTID 64
 // Servo CONFIG
-#define SERVO_LOCKED 0.6
-#define SERVO_UNLOCKED 0.4
+#define SERVO_LOCKED 60
+#define SERVO_UNLOCKED 40

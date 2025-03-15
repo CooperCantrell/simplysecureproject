@@ -154,7 +154,7 @@ typedef enum TimerIDs{
         }
         if (InputEvent.Label == ENTRY)
         {
-            ServoSetDC(SERVO_LOCKED);
+            SERVO_SetDutyCycle(SERVO_4, SERVO_LOCKED);
         }
         
         break;
@@ -162,7 +162,7 @@ typedef enum TimerIDs{
         //ServoControl(false);//some kind of servo control function need to go here
         if (InputEvent.Label == ENTRY)
         {
-            ServoSetDC(SERVO_UNLOCKED);
+            SERVO_SetDutyCycle(SERVO_4, SERVO_UNLOCKED);
         }
         if(InputEvent.Label == PING_FAR){
             if(!HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){

@@ -160,6 +160,7 @@ uint32_t recordTime(bool initFlag){
         // printf("ID: %u\r\n", InputEvent.Data);
         InputEvent = NO_EVENT;
         HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3,!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3));
+        //HAL_GPIO_WritePin(GPIOB, SERVO_PIN, !HAL_GPIO_ReadPin(GPIOB, SERVO_PIN));
     }
     static uint8_t count = 0;
     switch (CurrentState)
