@@ -19,9 +19,9 @@
 #include <Sensors.h>
 #include <SimplyFSM.h>
 #include <leds.h>
-#include <Servo.h>
-#include "pwm.h"
+#include <Servos.h>
 #include <TimerPost.h>
+#include <Speaker.h>
 int main(void)
 {
     
@@ -31,9 +31,8 @@ int main(void)
     SensorInit();
     LEDS_Init();
     TimerPostInit();
-    printf("%d\r\n",PWM_Init());
-    printf("%d\r\n",PWM_AddPin(PWM_4));
-    printf("%d\r\n",PWM_SetFrequency(100));
+    //SpeakerInit();
+    //printf("%i\n",ServoInit());
     printf("Lock Firmware for the lock is running\r\n");
     // Running as normal -----------------------------------------------------------
     RunQueue();
