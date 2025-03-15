@@ -17,6 +17,14 @@
         "pwm.h": "c",
         "buttons.h": "c",
         "timerpost.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "adc.h": "c",
+        "array": "cpp",
+        "functional": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp"
     }
 }

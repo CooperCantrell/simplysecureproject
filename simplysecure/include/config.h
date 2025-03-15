@@ -39,3 +39,8 @@
 #define HAL_DEBOUNCE_ID 9
 // temp
 #define HEARTID 64
+// Speakers
+#include <ADC.h>
+#include <pwm.h>
+#define POTPIN ADC_0
+#define SPEAKERPIN PWM_0
