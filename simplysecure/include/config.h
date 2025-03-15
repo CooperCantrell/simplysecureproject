@@ -42,6 +42,12 @@
 #define SERVO_Priority 2
 // temp
 #define HEARTID 64
-// Servo CONFIG
-#define SERVO_LOCKED 60
-#define SERVO_UNLOCKED 40
+// Speakers
+#include <ADC.h>
+#include <pwm.h>
+#define POTPIN ADC_0
+#define SPEAKERPIN PWM_0
+//Servos
+#define SERVO_FREQ 50
+//note this is GPIOA, PWM2
+#define SERVO_PIN GPIO_PIN_10
