@@ -55,7 +55,10 @@ double PingDist;
 bool PingClose;
 Event PingEvent;
 // for HAL Sensor --------------------------------------------------------------
-
+bool deboucetimer;
+bool HAL_Bounce;
+EventLabel HAL_LABEL;
+EventLabel HAL_LASTPOST;
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -65,13 +68,47 @@ double TimeFlight2in(uint32_t time){
     double x = (double) time;
     return (X_COEF*x + BIAS);
 }
-Event HALDebounce(Event MagEvent){
-    switch (MagEvent.Label)
-    {
-    case :
-        /* code */
-        break;
+Event Debounce(Event ThisEvent){
     
+    switch (ThisEvent.Label)
+    {
+    case DOOR_CLOSED:
+    case DOOR_OPENED:
+        HAL_LABEL = ThisEvent.Label;
+        if (!deboucetimer)
+        {
+            TimerPosting(HAL_DEBOUNCE_WAIT,Debounce,HAL_DEBOUNCE_ID);
+            deboucetimer = true;
+        }
+        else{
+            // bouced when timer is on
+            HAL_Bounce = true;
+        }
+
+        break;
+    case TIMEOUT:
+        switch (ThisEvent.Data)
+        {
+        case HAL_DEBOUNCE_ID:
+            if (HAL_Bounce)
+            {
+                HAL_Bounce = false;
+                TimerPosting(HAL_DEBOUNCE_WAIT,Debounce,HAL_DEBOUNCE_ID);
+                deboucetimer = true;
+            }
+            else
+            {
+                deboucetimer = false;
+                if((HAL_LASTPOST != HAL_LABEL)){
+                    PostUnlockFSM((Event){HAL_LABEL,0},HAL_Priority);
+                    HAL_LASTPOST = HAL_LABEL;
+                }
+            }
+            break;
+        
+        default:
+            break;
+        }
     default:
         break;
     }
@@ -114,7 +151,6 @@ void EXTI9_5_IRQHandler(void)
     if (__HAL_GPIO_EXTI_GET_IT(PING_ECHO) != RESET)
     {
         __HAL_GPIO_EXTI_CLEAR_IT(PING_ECHO); // clear interrupt flag
-        printf("PING\n");
         // anything that needs to happen when PB5 (ENC_B) changes state
         if(HAL_GPIO_ReadPin(GPIOB,PING_ECHO)){ // trigger on rise edge
             REdgeRead = TIMERS_GetMicroSeconds();
@@ -171,18 +207,17 @@ void EXTI9_5_IRQHandler(void)
     if (__HAL_GPIO_EXTI_GET_IT(HAL_PIN) != RESET)
     {
         __HAL_GPIO_EXTI_CLEAR_IT(HAL_PIN);
-        printf("HAL\n");
-        if (HAL_GPIO_ReadPin(GPIOB,HAL_PIN))
+        TODOItem HALTODO;
+        HALTODO.Func = Debounce;
+        if (!HAL_GPIO_ReadPin(GPIOB,HAL_PIN))
         {
-            PostSimplyFSM((Event){DOOR_CLOSED,0},HAL_Priority);
+            HALTODO.Input = (Event){DOOR_CLOSED,0};
         }
         else
         {
-            PostSimplyFSM((Event){DOOR_OPENED,0},HAL_Priority);
+            HALTODO.Input = (Event){DOOR_OPENED,0};
         }
-        
-        
-
+        EnQueueMaster(HAL_Priority,HALTODO);  
     }
     
         
@@ -276,5 +311,8 @@ char SensorInit(void){
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 2);
     HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+    deboucetimer = false;
+    HAL_Bounce = false;
+    HAL_LASTPOST = NONE;
     return SUCCESS;
 }

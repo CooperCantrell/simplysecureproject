@@ -26,7 +26,7 @@
 #define CAPTOUCH_Priority 2
 //PING config
 // ISR trigger pin
-#define PING_ECHO GPIO_PIN_6
+#define PING_ECHO GPIO_PIN_9
 #define PING_TRIG GPIO_PIN_8
 #define PING_Priority 2
 // distance is in inches 
@@ -35,6 +35,8 @@
 // HAL  Config
 #define HAL_PIN GPIO_PIN_7
 #define HAL_Priority 0
+#define HAL_DEBOUNCE_WAIT 10
+#define HAL_DEBOUNCE_ID 9
 //Servo Config
 #define SERVO_PIN GPIO_PIN_4
 #define SERVO_Priority 2
