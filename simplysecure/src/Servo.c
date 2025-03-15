@@ -66,25 +66,25 @@ void ServoInit(void){
     TIM_ClockConfigTypeDef sClockSourceConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
     htim4.Instance = TIM4;
-    htim4.Init.Prescaler = 83*100; // divide by 1 prescaler (84-1) = 1 Mhz tick
+    htim4.Init.Prescaler = 83; // divide by 1 prescaler (84-1) = 1 Mhz tick
     htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim4.Init.Period = 0xFFFF; // MUST CHANGE. number of clock cycles between interrupts
     htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
     {
-        return ERROR;
+        //return ERROR;
     }
     sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
     if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
     {
-        return ERROR;
+        //return ERROR;
     }
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
     {
-        return ERROR;
+        //return ERROR;
     }
     HAL_TIM_Base_Start_IT(&htim4); // start interrupt
 }
