@@ -24,9 +24,6 @@ typedef enum {
     ENTRY,
     EXIT,
     TIMEOUT,
-    UI_DEVICESETTINGS,
-    UI_MANUALSCAN,
-    INTERNAL_SCHEDULETIMERINTERRUPT,
     CAP_ON,
     CAP_OFF,
     SET_PASSWORD,
@@ -44,17 +41,21 @@ static const char *EventNames[] = {
     "ENTRY",
     "EXIT",
     "TIMEOUT",
-    "UI_DEVICESETTINGS",
-    "UI_MANUALSCAN",
-    "INTERNAL_SCHEDULETIMERINTERRUPT",
     "CAP_ON",
     "CAP_OFF",
+    "SET_PASSWORD",
+    "PING_CLOSE",
+    "PING_FAR",
+    "UNLOCK",
+    "DOOR_OPENED",
+    "DOOR_CLOSED",
+    "BUTTON",
 };
 
  typedef struct 
 {
     EventLabel Label;
-    void* Data;
+    uint16_t Data;
 }Event;
 
 
@@ -62,10 +63,10 @@ static const char *EventNames[] = {
 /*******************************************************************************
  * #DEFINE Special Events                                                                   *
  ******************************************************************************/
-#define NO_EVENT (Event){NONE,NULL}
-#define INIT_EVENT (Event){INIT,NULL}
-#define ENTRY_EVENT (Event){ENTRY,NULL}
-#define EXIT_EVENT (Event) {EXIT,NULL}
-#define PRESSED (Event) {CAP_ON,NULL}
-#define UNPRESSED (Event) {CAP_OFF,NULL}
+#define NO_EVENT (Event){NONE,0}
+#define INIT_EVENT (Event){INIT,0}
+#define ENTRY_EVENT (Event){ENTRY,0}
+#define EXIT_EVENT (Event) {EXIT,0}
+#define PRESSED (Event) {CAP_ON,0}
+#define UNPRESSED (Event) {CAP_OFF,0}
 #endif

@@ -30,7 +30,7 @@
 #define LENIENCY 1000000// how many microseconds the user is allowed to be off from the correct time
 #define SIMPLYTIMERID 1//The ID used for the Timer posting
 #define UNLOCKEVENT_PRIORITY 3
-#define TATTLE
+//#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -150,20 +150,15 @@ uint32_t recordTime(bool initFlag){
     SimplyFSMState_t nextstate;
     //count is used to run the start cycle and index through the passcode
     #ifdef TATTLE
-    printf("%s called, Input = %s:  STATE = %s DATA = %p\n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState],InputEvent.Data);
-
-    
+    printf("%s called, Input = %s:  STATE = %s DATA = %u\n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState],InputEvent.Data);
     #endif
-    if (InputEvent.Label == TIMEOUT)
-    {
-        printf("ID: %u\r\n", *(uint16_t*)InputEvent.Data);
-    }
     
-    if (((*(uint16_t*)InputEvent.Data)==HEARTID)){
+    if (((InputEvent.Data)==HEARTID)){
         TimerPosting(1000,RunSimplyFSM,HEARTID);
+        
+        // printf("Ba-Bum x%u\r\n",Heartbeat++);
+        // printf("ID: %u\r\n", InputEvent.Data);
         InputEvent = NO_EVENT;
-        printf("Ba-Bum x%u\r\n",Heartbeat++);
-        printf("ID: %p\r\n", (uint16_t*)InputEvent.Data);
         HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3,!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3));
     }
     static uint8_t count = 0;
@@ -173,7 +168,7 @@ uint32_t recordTime(bool initFlag){
         if(InputEvent.Label == BUTTON){
             passwordSetMode = true;
         }
-        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == SIMPLYTIMERID){
+        if(InputEvent.Label == TIMEOUT && InputEvent.Data == SIMPLYTIMERID){
             set_leds(0x00);
         }
         if(InputEvent.Label == CAP_ON){
@@ -290,7 +285,7 @@ uint32_t recordTime(bool initFlag){
                 TimerPosting(3000, RunSimplyFSM, count);
             }
         }
-        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == count){//implements the stop of the new passcode
+        if(InputEvent.Label == TIMEOUT && InputEvent.Data == count){//implements the stop of the new passcode
             PassCode[count][0] = 0;
             PassCode[count][1] = 0;
             Transition = true;
@@ -343,7 +338,9 @@ uint32_t recordTime(bool initFlag){
             TimerPosting(500, RunSimplyFSM, SIMPLYTIMERID);
 
             set_leds(0xFF);
-            Event UnlockEvent = {UNLOCK, 0};
+            static Event UnlockEvent;
+            UnlockEvent.Label = UNLOCK;
+            UnlockEvent.Data = 42;
             PostUnlockFSM(UnlockEvent, UNLOCKEVENT_PRIORITY);
             
             Transition = true;

@@ -136,5 +136,4 @@ void TODOQueue_exit(TODOList* List);
 
 // only for 167 ----
 uint32_t ReadPriorty(TODOList Queue);
-void* GetData (TODOList Queue);
 #endif 

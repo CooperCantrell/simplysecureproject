@@ -23,7 +23,7 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 #define GRACEPERIOD 30000
-#define TATTLE
+//#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -116,32 +116,40 @@ typedef enum TimerIDs{
   */
  Event RunUnlockFSM(Event InputEvent){
     #ifdef TATTLE
-    printf("%s called, Input = %s:  STATE = %s \n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState]);
+    printf("%s called, Input = %s:  STATE = %s \r\n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState]);
+    fflush(stdout);
     #endif
     bool Transition = false;
     UnlockFSMState_t nextstate;
-    if (InputEvent.Label == PING_CLOSE)
-    {
-        set_leds(0X10);
-    }
-    if (InputEvent.Label == PING_FAR)
-    {
-        set_leds(0);
-    }
+    // if (InputEvent.Label == PING_CLOSE)
+    // {
+    //     set_leds(0X10);
+    // }
+    // if (InputEvent.Label == PING_FAR)
+    // {
+    //     set_leds(0);
+    // }
 
     switch (CurrentState)
     {
     case Init:
         if(InputEvent.Label == INIT){
-            if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
-                nextstate = Locked;
-                Transition = true;
-                InputEvent = NO_EVENT;
-            } else {
-                nextstate = Unlocked;
-                Transition = true;
-                InputEvent = NO_EVENT;
-            }
+            // if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
+            //     nextstate = Locked;
+            //     Transition = true;
+            //     InputEvent = NO_EVENT;
+            // } else {
+            //     nextstate = Unlocked;
+            //     Transition = true;
+            //     InputEvent = NO_EVENT;
+            // }
+        }
+        break;
+    case Locked:
+        if(InputEvent.Label == UNLOCK){
+            nextstate = Unlocked;
+            Transition = true;
+            InputEvent = NO_EVENT;
         }
         break;
     case Unlocked:
@@ -172,7 +180,7 @@ typedef enum TimerIDs{
             Transition = true;
             InputEvent = NO_EVENT;
         }
-        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == UNLOCKFSMTIMERID+GracePeriod){
+        if(InputEvent.Label == TIMEOUT && InputEvent.Data == UNLOCKFSMTIMERID+GracePeriod){
             
             nextstate = ScreamON;
             Transition = true;
@@ -183,7 +191,7 @@ typedef enum TimerIDs{
         if(InputEvent.Label == ENTRY){
             TimerPosting(500, RunUnlockFSM, UNLOCKFSMTIMERID+Scream);
         }
-        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == UNLOCKFSMTIMERID+Scream){
+        if(InputEvent.Label == TIMEOUT && InputEvent.Data == UNLOCKFSMTIMERID+Scream){
             nextstate = ScreamOFF;
             Transition = true;
             InputEvent = NO_EVENT;
@@ -193,7 +201,7 @@ typedef enum TimerIDs{
         if(InputEvent.Label == ENTRY){
             TimerPosting(500, RunUnlockFSM, Scream);
         }
-        if(InputEvent.Label == TIMEOUT && *(uint16_t*)InputEvent.Data == UNLOCKFSMTIMERID+Scream){
+        if(InputEvent.Label == TIMEOUT && InputEvent.Data == UNLOCKFSMTIMERID+Scream){
             nextstate = ScreamON;
             Transition = true;
             InputEvent = NO_EVENT;

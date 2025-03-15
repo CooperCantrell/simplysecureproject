@@ -222,10 +222,17 @@ bool IsEmpty(TODOList Queue){
  * @author Cooper Cantrell, 2/1/2025 
  * @edited --
 */ 
+#include <stdio.h>
 Event Execute(TODOList Queue){
     if (!IsEmpty(Queue))
-    {
+    {        
         TODOItem Stuff = DeQueue(Queue);
+        printf("About to post something with a pointer of %p\n",Stuff.Func);
+        fflush(stdout);
+        printf("Data of %u \n",Stuff.Input.Data);
+        fflush(stdout);
+        printf("Label of %s \n",EventNames[Stuff.Input.Label]);
+        fflush(stdout);
         return Stuff.Func(Stuff.Input);
     }
     return NO_EVENT;
@@ -262,7 +269,7 @@ void RunQueue(void){
         if (LastState ^ buttons_state())
         {
             LastState = buttons_state();
-            PostSimplyFSM((Event){BUTTON,&LastState}, 4);
+            PostSimplyFSM((Event){BUTTON,LastState}, 4);
         }
         
     }
@@ -326,9 +333,6 @@ uint32_t ReadPriorty(TODOList Queue){
         return Queue->Head->Priority;
     }
     
-}
-void* GetData (TODOList Queue){
-    return Queue->Head->data.Input.Data;
 }
 #ifdef TODOQUEUE_TEST
 //tests go here
