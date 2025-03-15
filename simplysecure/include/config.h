@@ -44,3 +44,7 @@
 #include <pwm.h>
 #define POTPIN ADC_0
 #define SPEAKERPIN PWM_0
+//Servos
+#define SERVO_FREQ 50
+//note this is GPIOA, PWM2
+#define SERVO_PIN GPIO_PIN_10
