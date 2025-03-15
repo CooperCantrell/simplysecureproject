@@ -30,8 +30,9 @@
 #define PING_TRIG GPIO_PIN_8
 #define PING_Priority 2
 // distance is in inches 
-#define PING_CLOSE_THRESH 12
-#define PING_CLOSE_TOL 5
+#define PING_CLOSE_THRESH 42
+#define PING_CLOSE_TOL 10
+#define PING_MISS_THRESH 800
 // HAL  Config
 #define HAL_PIN GPIO_PIN_7
 #define HAL_Priority 0
