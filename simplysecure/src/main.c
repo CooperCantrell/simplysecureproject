@@ -31,8 +31,8 @@ int main(void)
     SensorInit();
     LEDS_Init();
     TimerPostInit();
-    SpeakerInit();
-    printf("%i\n",ServoInit());
+    //SpeakerInit();
+    //printf("%i\n",ServoInit());
     printf("Lock Firmware for the lock is running\r\n");
     // Running as normal -----------------------------------------------------------
     RunQueue();

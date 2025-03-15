@@ -25,7 +25,7 @@
  ******************************************************************************/
 #define X_COEF 0.006735130021308
 #define BIAS 0.239378770600926
-
+#define PINGITCOUNT 5
 
 /*******************************************************************************
  * PRIVATE TYPEDEFS                                                            *
@@ -47,6 +47,7 @@ enum States
     Trigger,
 };
 enum States CurrentState;
+uint32_t InterruptCount;
 uint32_t TimeOfFlight;
 uint32_t REdgeRead; // Riseing edge read
 uint32_t FEdgeRead; // Falling
@@ -59,6 +60,9 @@ bool deboucetimer;
 bool HAL_Bounce;
 EventLabel HAL_LABEL;
 EventLabel HAL_LASTPOST;
+// for Servo--------------------------------------------------------------------
+static uint16_t DUTY = 50;
+enum States ServoState;
 /*******************************************************************************
  * PRIVATE FUNCTIONS/CLASSES                                                   *
  ******************************************************************************/
@@ -122,21 +126,39 @@ void TIM3_IRQHandler(void)
     {
         __HAL_TIM_CLEAR_IT(&htim3, TIM_IT_UPDATE); // clear interrupt flag
 
-        // state machine of your design
-        switch (CurrentState)
+        switch (ServoState)
         {
         case Waiting:
-        // Timer is 10k Hz
-            CurrentState = Trigger;
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
-            TIM3->ARR = 1;
+            ServoState = Trigger;
+            //printf("w\n");
+            HAL_GPIO_WritePin(GPIOA,SERVO_PIN,GPIO_PIN_SET);
+            set_leds(1);
+            //TIM3->ARR = 200 * (uint8_t)(DUTY/100);
+            //TIM3->ARR = 200 * (uint8_t)((DUTY)/100);
+            TIM3->ARR = (uint16_t)(2*DUTY);
             break;
-
         case Trigger:
-            CurrentState = Waiting;
-            HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
-            TIM3->ARR = 1000;
-
+            //printf("t %d\n", InterruptCount);
+            ServoState = Waiting;
+            HAL_GPIO_WritePin(GPIOA,SERVO_PIN,GPIO_PIN_RESET);
+            //TIM3->ARR = 200 * (uint8_t)((100-DUTY)/100);
+            
+            TIM3->ARR = (uint16_t)(2*(100-DUTY));
+            set_leds(0);
+            InterruptCount++;
+            //PING state machine
+            if(InterruptCount == PINGITCOUNT){
+                InterruptCount = 0;
+                ServoState = Trigger;
+                HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+                TIM3->ARR = 1;
+            } else if (InterruptCount == 1) {
+                printf("Ping\n");
+                HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
+                // TIM3->ARR = 200 * (uint8_t)((100-DUTY)/100)-1;
+                
+                TIM3->ARR = (uint16_t)(2*(100-DUTY)-1);
+            }
             break;
         default:
             break;
@@ -266,9 +288,9 @@ char SensorInit(void){
     TIM_ClockConfigTypeDef sClockSourceConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
     htim3.Instance = TIM3;
-    htim3.Init.Prescaler = 83*100; // divide by 1 prescaler (84-1) = 1 Mhz tick
+    htim3.Init.Prescaler = (uint16_t)(HAL_RCC_GetSysClockFreq()/10000-1); //set frequency to 10000H or 10kHzz
     htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim3.Init.Period = 0xFFFF; // MUST CHANGE. number of clock cycles between interrupts
+    htim3.Init.Period = 0xFFFF; //changed later with TIM3->ARR
     htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -286,6 +308,9 @@ char SensorInit(void){
     {
         return ERROR;
     }
+    DUTY = 10;
+    ServoState = Trigger;
+    TIM3->ARR = 200;
     HAL_TIM_Base_Start_IT(&htim3); // start interrupt
 
     // this block inits the external pin-generted interrupt on any change of pin PB5 (ENC_B)
