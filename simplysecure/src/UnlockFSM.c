@@ -15,11 +15,11 @@
 #include "TODOQueue.h"
 #include "timers.h"
 #include "TimerPost.h"
+#include "Sensors.h"
 #include <stdbool.h>
 #include <math.h>
 #include <leds.h>
 #include <stdio.h>
-#include <Servo.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -154,7 +154,7 @@ typedef enum TimerIDs{
         }
         if (InputEvent.Label == ENTRY)
         {
-            SERVO_SetDutyCycle(SERVO_4, SERVO_LOCKED);
+            SERVO_SetDutyCycle(SERVO_LOCKED);
         }
         
         break;
@@ -162,7 +162,7 @@ typedef enum TimerIDs{
         //ServoControl(false);//some kind of servo control function need to go here
         if (InputEvent.Label == ENTRY)
         {
-            SERVO_SetDutyCycle(SERVO_4, SERVO_UNLOCKED);
+            SERVO_SetDutyCycle(SERVO_UNLOCKED);
         }
         if(InputEvent.Label == PING_FAR){
             if(!HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){

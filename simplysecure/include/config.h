@@ -49,5 +49,7 @@
 #define SPEAKERPIN PWM_0
 //Servos
 #define SERVO_FREQ 50
+#define SERVO_LOCKED 60
+#define SERVO_UNLOCKED 40
 //note this is GPIOA, PWM2
 #define SERVO_PIN GPIO_PIN_10

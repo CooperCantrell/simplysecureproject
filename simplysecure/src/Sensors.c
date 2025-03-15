@@ -341,3 +341,17 @@ char SensorInit(void){
     HAL_LASTPOST = NONE;
     return SUCCESS;
 }
+
+/**
+ * @Function SERVO_SetDutyCycle(uint16_t duty)
+ * @param new duty cycle, must be between 1-99
+ * @return none
+ * @brief inits all of the sensors together so the ISR works better
+ * @author Caitlin Bonesio
+ * @edited EDITORNAME, DATE - only if applies
+*/
+void SERVO_SetDutyCycle(uint16_t duty){
+    if(duty < 100 && duty >0){
+        DUTY = duty;
+    }
+}
