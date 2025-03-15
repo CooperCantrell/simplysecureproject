@@ -19,7 +19,6 @@
 #include <Sensors.h>
 #include <SimplyFSM.h>
 #include <leds.h>
-#include <Servos.h>
 #include <TimerPost.h>
 #include <Speaker.h>
 int main(void)

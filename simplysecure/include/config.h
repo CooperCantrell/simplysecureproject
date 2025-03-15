@@ -38,7 +38,7 @@
 #define HAL_DEBOUNCE_WAIT 10
 #define HAL_DEBOUNCE_ID 9
 //Servo Config
-#define SERVO_PIN GPIO_PIN_12
+//#define SERVO_PIN GPIO_PIN_12
 #define SERVO_Priority 2
 // temp
 #define HEARTID 64
