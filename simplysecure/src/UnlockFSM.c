@@ -19,6 +19,7 @@
 #include <math.h>
 #include <leds.h>
 #include <stdio.h>
+#include <Servo.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
@@ -151,9 +152,18 @@ typedef enum TimerIDs{
             Transition = true;
             InputEvent = NO_EVENT;
         }
+        if (InputEvent.Label == ENTRY)
+        {
+            ServoSetDC(SERVO_LOCKED);
+        }
+        
         break;
     case Unlocked:
         //ServoControl(false);//some kind of servo control function need to go here
+        if (InputEvent.Label == ENTRY)
+        {
+            ServoSetDC(SERVO_UNLOCKED);
+        }
         if(InputEvent.Label == PING_FAR){
             if(!HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
                 nextstate = Locked;

@@ -17,6 +17,7 @@
         "pwm.h": "c",
         "buttons.h": "c",
         "timerpost.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "servo.h": "c"
     }
 }
