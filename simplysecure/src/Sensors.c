@@ -121,7 +121,7 @@ void EXTI9_5_IRQHandler(void)
             {
                 PingClose = false;
                 PingEvent.Label = PING_FAR;
-                PingEvent.Data = &PingDist;
+                PingEvent.Data = 0;
                 PostSimplyFSM(PingEvent,PING_Priority);
             }
             
@@ -160,11 +160,11 @@ void EXTI9_5_IRQHandler(void)
         __HAL_GPIO_EXTI_CLEAR_IT(HAL_PIN);
         if (HAL_GPIO_ReadPin(GPIOB,HAL_PIN))
         {
-            PostSimplyFSM((Event){DOOR_CLOSED,NULL},HAL_Priority);
+            PostSimplyFSM((Event){DOOR_CLOSED,0},HAL_Priority);
         }
         else
         {
-            PostSimplyFSM((Event){DOOR_OPENED,NULL},HAL_Priority);
+            PostSimplyFSM((Event){DOOR_OPENED,0},HAL_Priority);
         }
         
         

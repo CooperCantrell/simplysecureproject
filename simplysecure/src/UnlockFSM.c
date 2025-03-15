@@ -23,7 +23,7 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 #define GRACEPERIOD 30000
-//#define TATTLE
+#define TATTLE
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -134,15 +134,15 @@ typedef enum TimerIDs{
     {
     case Init:
         if(InputEvent.Label == INIT){
-            // if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
-            //     nextstate = Locked;
-            //     Transition = true;
-            //     InputEvent = NO_EVENT;
-            // } else {
-            //     nextstate = Unlocked;
-            //     Transition = true;
-            //     InputEvent = NO_EVENT;
-            // }
+            if(HAL_GPIO_ReadPin(GPIOB,HAL_PIN)){
+                nextstate = Locked;
+                Transition = true;
+                InputEvent = NO_EVENT;
+            } else {
+                nextstate = Unlocked;
+                Transition = true;
+                InputEvent = NO_EVENT;
+            }
         }
         break;
     case Locked:

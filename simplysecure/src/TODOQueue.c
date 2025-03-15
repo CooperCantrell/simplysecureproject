@@ -227,12 +227,12 @@ Event Execute(TODOList Queue){
     if (!IsEmpty(Queue))
     {        
         TODOItem Stuff = DeQueue(Queue);
-        printf("About to post something with a pointer of %p\n",Stuff.Func);
-        fflush(stdout);
-        printf("Data of %u \n",Stuff.Input.Data);
-        fflush(stdout);
-        printf("Label of %s \n",EventNames[Stuff.Input.Label]);
-        fflush(stdout);
+        // printf("About to post something with a pointer of %p\n",Stuff.Func);
+        // fflush(stdout);
+        // printf("Data of %u \n",Stuff.Input.Data);
+        // fflush(stdout);
+        // printf("Label of %s \n",EventNames[Stuff.Input.Label]);
+        // fflush(stdout);
         return Stuff.Func(Stuff.Input);
     }
     return NO_EVENT;
