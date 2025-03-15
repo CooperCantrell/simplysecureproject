@@ -231,6 +231,7 @@ Event Execute(TODOList Queue){
         // fflush(stdout);
         // printf("Data of %u \n",Stuff.Input.Data);
         // fflush(stdout);
+
         // printf("Label of %s \n",EventNames[Stuff.Input.Label]);
         // fflush(stdout);
         return Stuff.Func(Stuff.Input);
@@ -252,6 +253,7 @@ void RunQueue(void){
     // Init the Queue to the size in FLARECONFIG
     MasterQueue = TODOQueue_init(TODO_SIZE);
     BUTTONS_Init();
+    LastState = buttons_state();
     // Init all needed state machines (IN PROGRESS)
     for (size_t i = 0; i < ARRAY_SIZE(StateMachineINIT); i++)
     {
@@ -266,7 +268,7 @@ void RunQueue(void){
         }
         runtimer();
         // change in button state
-        if (LastState ^ buttons_state())
+        if (LastState != buttons_state())
         {
             LastState = buttons_state();
             PostSimplyFSM((Event){BUTTON,LastState}, 4);
