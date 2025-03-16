@@ -50,7 +50,7 @@
 #define SPEAKERPIN PWM_0
 //Servos
 #define SERVO_FREQ 50
-#define SERVO_LOCKED 80
-#define SERVO_UNLOCKED 20
+#define SERVO_LOCKED 9
+#define SERVO_UNLOCKED 3
 //note this is GPIOB, pin 61
 #define SERVO_PIN GPIO_PIN_10
