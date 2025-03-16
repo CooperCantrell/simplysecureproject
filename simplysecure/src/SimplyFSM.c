@@ -28,11 +28,12 @@
 #define STARTCYCLES 3//number of taps and pauses need to calibrate the passcode tempo
 #define DEFAULTTEMPO 1000000//default pause and tap is one second long
 #define MAXCODELENGTH 50//maximun number of taps and waits combined in a code
-#define TEMPOLENIENCY (DEFAULTTEMPO*.25)//what percentage of from the right time the user is allowed to be off from the correct time
+#define TEMPOLENIENCY (DEFAULTTEMPO*.50)//what percentage of from the right time the user is allowed to be off from the correct time
 #define FREQLENIENCY 150// how many Hz the user is allowed to be off from the correct time
 #define SIMPLYTIMERID 1//The ID used for the Timer posting
 #define UNLOCKEVENT_PRIORITY 3
 //#define TATTLE
+//#define HEARTBEAT
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -154,8 +155,8 @@ uint32_t recordTime(bool initFlag){
     #ifdef TATTLE
     printf("%s called, Input = %s:  STATE = %s DATA = %u\n", __PRETTY_FUNCTION__, EventNames[InputEvent.Label], StateNames[CurrentState],InputEvent.Data);
     #endif
-    
-    if (((InputEvent.Data)==HEARTID)){
+#ifdef HEARTBEAT
+    if ((InputEvent.Label == TIMEOUT) &&((InputEvent.Data)==HEARTID)){
         TimerPosting(1000,RunSimplyFSM,HEARTID);
         
         // printf("Ba-Bum x%u\r\n",Heartbeat++);
@@ -164,6 +165,7 @@ uint32_t recordTime(bool initFlag){
         HAL_GPIO_WritePin(GPIOB, GPIO_PIN_3,!HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_3));
         //HAL_GPIO_WritePin(GPIOB, SERVO_PIN, !HAL_GPIO_ReadPin(GPIOB, SERVO_PIN));
     }
+#endif
     static uint8_t count = 0;
     static uint16_t lastFreq = 0;
     switch (CurrentState)
@@ -187,7 +189,9 @@ uint32_t recordTime(bool initFlag){
             TIMER_Init();//should be done earlier, however, initializing the timers twice wont hurt as it has protections
             count = 0;
             passwordSetMode = true;//When device first boots up, set the password
+#ifdef HEARTBEAT
             TimerPosting(1000,RunSimplyFSM,HEARTID);
+#endif
         }
         break;
     

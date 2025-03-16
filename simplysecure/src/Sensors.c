@@ -35,7 +35,7 @@
  * PRIVATE VARIABLES                                                           *
  ******************************************************************************/
 // for captouch sensor ---------------------------------------------------------
- volatile uint32_t LastTime;
+volatile uint32_t LastTime;
 volatile int Period;
 volatile uint32_t CurrentTime;
 volatile bool laststate = false;
@@ -131,7 +131,7 @@ void TIM3_IRQHandler(void)
         case Waiting:
             ServoState = Trigger;
             //printf("w\n");
-            HAL_GPIO_WritePin(GPIOA,SERVO_PIN,GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOB,SERVO_PIN,GPIO_PIN_SET);
             // set_leds(1);
             //TIM3->ARR = 200 * (uint8_t)(DUTY/100);
             //TIM3->ARR = 200 * (uint8_t)((DUTY)/100);
@@ -140,7 +140,7 @@ void TIM3_IRQHandler(void)
         case Trigger:
             //printf("t %d\n", InterruptCount);
             ServoState = Waiting;
-            HAL_GPIO_WritePin(GPIOA,SERVO_PIN,GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOB,SERVO_PIN,GPIO_PIN_RESET);
             //TIM3->ARR = 200 * (uint8_t)((100-DUTY)/100);
             
             TIM3->ARR = (uint16_t)(2*(100-DUTY));
@@ -185,6 +185,7 @@ void EXTI9_5_IRQHandler(void)
             {
                 PingDist = (PingDist/2) + (TimeFlight2in(TimeOfFlight)/2);
             }
+            //printf("%f\n",PingDist);
             if ((PingDist<PING_CLOSE_THRESH-PING_CLOSE_TOL) && !PingClose)
             {
                 PingClose = true;
@@ -216,7 +217,8 @@ void EXTI9_5_IRQHandler(void)
          CurrentTime = TIMERS_GetMicroSeconds();
          Period = MovingAvgFIT(CurrentTime-LastTime,0);
          LastTime = CurrentTime;
-        currentstate = HystFilter256(Period,1500,200,0);
+        currentstate = HystFilter256(Period,600,50,0);
+        //printf("%i\r\n",Period);
         if (currentstate != laststate)
         {
             if (currentstate)
@@ -343,6 +345,12 @@ char SensorInit(void){
     deboucetimer = false;
     HAL_Bounce = false;
     HAL_LASTPOST = NONE;
+    // Servo INIT
+    GPIO_InitStruct.Pin = SERVO_PIN;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     return SUCCESS;
 }
 

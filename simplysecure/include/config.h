@@ -30,9 +30,9 @@
 #define PING_TRIG GPIO_PIN_8
 #define PING_Priority 2
 // distance is in inches 
-#define PING_CLOSE_THRESH 42
-#define PING_CLOSE_TOL 10
-#define PING_MISS_THRESH 800
+#define PING_CLOSE_THRESH 24
+#define PING_CLOSE_TOL 6
+#define PING_MISS_THRESH 470
 // HAL  Config
 #define HAL_PIN GPIO_PIN_7
 #define HAL_Priority 0
@@ -52,5 +52,5 @@
 #define SERVO_FREQ 50
 #define SERVO_LOCKED 60
 #define SERVO_UNLOCKED 40
-//note this is GPIOA, PWM2
+//note this is GPIOB, pin 61
 #define SERVO_PIN GPIO_PIN_10

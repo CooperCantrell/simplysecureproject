@@ -20,11 +20,13 @@
 #include <math.h>
 #include <leds.h>
 #include <stdio.h>
+#include <Speaker.h>
 /*******************************************************************************
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 #define GRACEPERIOD 30000
 #define TATTLE
+#define SCREAMFREQ 1000
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
 typedef enum {
@@ -51,7 +53,6 @@ typedef enum TimerIDs{
     GracePeriod,
     Scream,
 }TimerIDs_t;
-
 
 
 /*******************************************************************************
@@ -200,6 +201,7 @@ typedef enum TimerIDs{
     case ScreamON:
         if(InputEvent.Label == ENTRY){
             TimerPosting(500, RunUnlockFSM, UNLOCKFSMTIMERID+Scream);
+            SpeakerDuty(50);
         }
         if(InputEvent.Label == TIMEOUT && InputEvent.Data == UNLOCKFSMTIMERID+Scream){
             nextstate = ScreamOFF;
@@ -215,6 +217,7 @@ typedef enum TimerIDs{
     case ScreamOFF:
         if(InputEvent.Label == ENTRY){
             TimerPosting(500, RunUnlockFSM, UNLOCKFSMTIMERID+Scream);
+            SpeakerDuty(0);
         }
         if(InputEvent.Label == TIMEOUT && InputEvent.Data == UNLOCKFSMTIMERID+Scream){
             nextstate = ScreamON;
