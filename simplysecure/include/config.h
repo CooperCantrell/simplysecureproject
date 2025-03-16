@@ -38,6 +38,9 @@
 #define HAL_Priority 0
 #define HAL_DEBOUNCE_WAIT 10
 #define HAL_DEBOUNCE_ID 9
+//Servo Config
+//#define SERVO_PIN GPIO_PIN_12
+#define SERVO_Priority 2
 // temp
 #define HEARTID 64
 // Speakers
@@ -47,5 +50,7 @@
 #define SPEAKERPIN PWM_0
 //Servos
 #define SERVO_FREQ 50
+#define SERVO_LOCKED 60
+#define SERVO_UNLOCKED 40
 //note this is GPIOA, PWM2
 #define SERVO_PIN GPIO_PIN_10

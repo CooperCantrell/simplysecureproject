@@ -154,6 +154,7 @@ void TIM3_IRQHandler(void)
                 TIM3->ARR = 1;
             } else if (InterruptCount == 1) {
                 //printf("Ping\n");
+                //printf("Ping\n");
                 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
                 // TIM3->ARR = 200 * (uint8_t)((100-DUTY)/100)-1;
                 
@@ -343,4 +344,18 @@ char SensorInit(void){
     HAL_Bounce = false;
     HAL_LASTPOST = NONE;
     return SUCCESS;
+}
+
+/**
+ * @Function SERVO_SetDutyCycle(uint16_t duty)
+ * @param new duty cycle, must be between 1-99
+ * @return none
+ * @brief inits all of the sensors together so the ISR works better
+ * @author Caitlin Bonesio
+ * @edited EDITORNAME, DATE - only if applies
+*/
+void SERVO_SetDutyCycle(uint16_t duty){
+    if(duty < 100 && duty >0){
+        DUTY = duty;
+    }
 }

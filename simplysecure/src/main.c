@@ -19,7 +19,6 @@
 #include <Sensors.h>
 #include <SimplyFSM.h>
 #include <leds.h>
-#include <Servos.h>
 #include <TimerPost.h>
 #include <Speaker.h>
 int main(void)
@@ -32,7 +31,6 @@ int main(void)
     LEDS_Init();
     TimerPostInit();
     SpeakerInit();
-    SpeakerDuty(50);
     //printf("%i\n",ServoInit());
     printf("Lock Firmware for the lock is running\r\n");
     // Running as normal -----------------------------------------------------------
