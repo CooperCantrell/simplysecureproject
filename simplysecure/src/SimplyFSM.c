@@ -28,7 +28,7 @@
 #define STARTCYCLES 3//number of taps and pauses need to calibrate the passcode tempo
 #define DEFAULTTEMPO 1000000//default pause and tap is one second long
 #define MAXCODELENGTH 50//maximun number of taps and waits combined in a code
-#define TEMPOLENIENCY (DEFAULTTEMPO*.50)//what percentage of from the right time the user is allowed to be off from the correct time
+#define TEMPOLENIENCY (DEFAULTTEMPO*0.25)//what percentage of from the right time the user is allowed to be off from the correct time
 #define FREQLENIENCY 150// how many Hz the user is allowed to be off from the correct time
 #define SIMPLYTIMERID 1//The ID used for the Timer posting
 #define UNLOCKEVENT_PRIORITY 3
