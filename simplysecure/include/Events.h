@@ -34,23 +34,23 @@ typedef enum {
     DOOR_CLOSED,
     BUTTON,
 } EventLabel;
-static const char *EventNames[] = {
-    "NONE",
-    "SERROR",
-    "INIT",
-    "ENTRY",
-    "EXIT",
-    "TIMEOUT",
-    "CAP_ON",
-    "CAP_OFF",
-    "SET_PASSWORD",
-    "PING_CLOSE",
-    "PING_FAR",
-    "UNLOCK",
-    "DOOR_OPENED",
-    "DOOR_CLOSED",
-    "BUTTON",
-};
+// static const char *EventNames[] = {
+//     "NONE",
+//     "SERROR",
+//     "INIT",
+//     "ENTRY",
+//     "EXIT",
+//     "TIMEOUT",
+//     "CAP_ON",
+//     "CAP_OFF",
+//     "SET_PASSWORD",
+//     "PING_CLOSE",
+//     "PING_FAR",
+//     "UNLOCK",
+//     "DOOR_OPENED",
+//     "DOOR_CLOSED",
+//     "BUTTON",
+// };
 
  typedef struct 
 {

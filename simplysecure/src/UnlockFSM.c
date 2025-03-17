@@ -25,7 +25,7 @@
  * PRIVATE #DEFINES                                                            *
  ******************************************************************************/
 #define GRACEPERIOD 30000
-#define TATTLE
+//#define TATTLE
 #define SCREAMFREQ 1000
 /* PRIVATE TYPEDEFS                                                            *
  ******************************************************************************/
@@ -38,14 +38,14 @@ typedef enum {
     ScreamOFF,
 } UnlockFSMState_t;
 
-static const char *StateNames[] = {
-    "Init",
-    "Locked",
-    "Unlocked",
-    "Locking",
-    "ScreamON",
-    "ScreamOFF",
-};
+// static const char *StateNames[] = {
+//     "Init",
+//     "Locked",
+//     "Unlocked",
+//     "Locking",
+//     "ScreamON",
+//     "ScreamOFF",
+// };
 
 #define UNLOCKFSMTIMERID 50
 

@@ -47,16 +47,16 @@ typedef enum {
     Reset,
 } SimplyFSMState_t;
 
-static const char *StateNames[] = {
-	"Init",
-    "MeasureON",
-    "MeasureOFF",
-    "Wait",
-    "ON",
-    "OFF",
-    "Unlock",
-    "Reset",
-};
+// static const char *StateNames[] = {
+// 	"Init",
+//     "MeasureON",
+//     "MeasureOFF",
+//     "Wait",
+//     "ON",
+//     "OFF",
+//     "Unlock",
+//     "Reset",
+// };
 
 
 
