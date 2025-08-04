@@ -12,4 +12,6 @@ The "Simply Secure" system is an innovative security solution that reimagines tr
     * **LED Illumination:** LEDs illuminate when the user approaches, providing visual feedback.
     * **Built-in Alarm System:** Activates if the door remains open for an extended period, with the duration configurable via software.
 * **Proximity Detection:** Utilizes an ultrasonic ping sensor for both auto-lock and LED illumination features.
-
+## Photos
+![Front](otherfiles/Front.png)\
+![Front](otherfiles/Open.png)\
